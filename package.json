@@ -2,22 +2,20 @@
   "name": "majormud-client",
   "version": "1.0.0",
   "description": "A tool for automating the play of MajorMUD.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/Exide/majormud-client.git"
-  },
+  "author": "Ryan Zander <exide@hotmail.com>",
+  "license": "MIT",
   "keywords": [
     "majormud",
     "megamud"
   ],
-  "author": "Ryan Zander <exide@hotmail.com>",
-  "license": "MIT",
+  "main": "index.js",
+  "homepage": "https://github.com/Exide/majormud-client",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Exide/majormud-client.git"
+  },
   "bugs": {
     "url": "https://github.com/Exide/majormud-client/issues"
   },
-  "homepage": "https://github.com/Exide/majormud-client#readme"
+  "dependencies": {}
 }
