@@ -12,6 +12,7 @@
     "develop": "webpack-dev-server",
     "build": "webpack"
   },
+  "main": "src/index.js",
   "homepage": "https://github.com/Exide/majormud-client",
   "repository": {
     "type": "git",
