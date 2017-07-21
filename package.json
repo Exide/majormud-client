@@ -11,7 +11,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "webpack --watch"
+    "dev": "webpack --watch",
+    "build": "webpack"
   },
   "homepage": "https://github.com/Exide/majormud-client",
   "repository": {
