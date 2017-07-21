@@ -1,5 +1,5 @@
-var telnet = require('./lib/telnet');
-var config = require('./config.json');
+var telnet = require('./telnet');
+var config = require('../resources/config.json');
 
 var ifttt = [
   {
