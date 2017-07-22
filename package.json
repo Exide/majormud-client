@@ -8,11 +8,12 @@
     "majormud",
     "megamud"
   ],
+  "main": "src/main.js",
   "scripts": {
-    "develop": "webpack-dev-server",
+    "start": "electron .",
+    "develop": "webpack --watch",
     "build": "webpack"
   },
-  "main": "src/index.js",
   "homepage": "https://github.com/Exide/majormud-client",
   "repository": {
     "type": "git",
@@ -26,7 +27,7 @@
     "babel-loader": "^7.1.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
-    "html-webpack-plugin": "^2.29.0",
+    "electron": "^1.6.11",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "webpack": "^3.2.0",

@@ -2,7 +2,9 @@ import React from 'react';
 import Terminal from './terminal.jsx';
 
 const App = () => (
-  <Terminal/>
+  <div>
+    <Terminal host="greatermud.com"/>
+  </div>
 );
 
 export default App;

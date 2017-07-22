@@ -1,63 +1,70 @@
-var net = require('net');
-var util = require('util');
-var events = require('events');
+const IAC = 255;
 
-module.exports = Connection;
-
-function Connection() {
-  this.commands = {
-    255: 'IAC',
-    254: 'DONT',
-    253: 'DO',
-    252: 'WONT',
-    251: 'WILL',
-    250: 'SB',
-    240: 'SE'
-  };
-
-  this.options = {
-    1: 'ECHO',
-    3: 'SUPPRESS-GO-AHEAD'
-  };
-}
-
-util.inherits(Connection, events.EventEmitter);
-
-Connection.prototype.connect = function (host, port, timeout) {
-  var self = this;
-  this.socket = net.createConnection(port, host);
-  this.socket.setTimeout(timeout);
-  this.socket.on('connect', function() { console.log('connection open'); });
-  this.socket.on('data', function(data) {
-    data = parse(self.socket, data);
-    self.emit('data', data);
-  });
-  this.socket.on('error', function(error) { console.log('connection error:', error); });
-  this.socket.on('end', function() { console.log('?socket end?'); });
-  this.socket.on('close', function() { console.log('connection closed'); });
+export const commands = {
+  255: 'IAC',
+  254: 'DONT',
+  253: 'DO',
+  252: 'WONT',
+  251: 'WILL',
+  250: 'SB',
+  240: 'SE'
 };
 
-function parse(socket, chunk) {
-  if (isNegotiation(chunk))
-    chunk = negotiate(socket, chunk);
+export const options = {
+  1: 'ECHO',
+  3: 'SUPPRESS-GO-AHEAD'
+};
 
-  if (chunk !== undefined)
-    return chunk.toString();
-}
+/**
+ * Reads through a byte array looking for Telnet commands, removing them.
+ *
+ * @param {Buffer} buffer
+ * @returns {Buffer}
+ */
+export const parse = (buffer) => {
+  if (buffer === undefined)
+    throw new TypeError('buffer cannot be undefined');
 
-function isNegotiation(data) {
-  return data[0] === 255 && data[1] !== 255;
-}
+  console.log('buffer:', buffer);
 
-function negotiate(socket, chunk) {
-  var data = chunk;
-  var command;
-  var response;
+  for (let i = 0; i < buffer.length; ++i) {
+    let isIAC = buffer[i] === IAC;
+    let remainingBytes = buffer.length - (i + 1);
+    let hasRoom = remainingBytes >= 2;
+    if (isIAC && hasRoom) {
+      let iac = buffer[i];
+      let command = buffer[i+1];
+      let option = buffer[i+2];
+      buffer = buffer.slice(3);
+      console.log('Telnet command received:', commandToString(iac, command, option));
+    }
+  }
 
-  for (var i = 0; i < chunk.length; i+=3) {
-    if (chunk[i] != 255) {
-      data = chunk.slice(0, i);
-      command = chunk.slice(i);
+  return buffer;
+};
+
+const commandToString = (iac, command, option) => {
+  let output = [];
+  output.push(commands[iac]);
+  output.push(commands[command]);
+  option = option.toString();
+  let isKnownOption = option in Object.keys(options);
+  if (isKnownOption)
+    output.push(options[option]);
+  else
+    output.push(option);
+  return output.join(' ');
+};
+
+const negotiate = (socket, buffer) => {
+  let data = buffer;
+  let command;
+  let response;
+
+  for (let i = 0; i < buffer.length; i += 3) {
+    if (buffer[i] != 255) {
+      data = buffer.slice(0, i);
+      command = buffer.slice(i);
       break
     }
   }
@@ -66,9 +73,8 @@ function negotiate(socket, chunk) {
     .replace(/fd/g, 'fc')
     .replace(/fb/g, 'fd');
 
-  if (socket.writable)
-    socket.write(Buffer(response, 'hex'));
+  socket.write(Buffer(response, 'hex'));
 
   if (command !== undefined)
     return command;
-}
+};
