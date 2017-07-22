@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "A tool for automating the play of MajorMUD.",
   "author": "Ryan Zander <exide@hotmail.com>",
-  "license": "MIT",
   "keywords": [
     "majormud",
     "megamud"
