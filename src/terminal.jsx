@@ -7,25 +7,29 @@ export default class Terminal extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
+      buffer: '',
       output: ''
     };
+
+    this.handleKeyUp = this.handleKeyUp.bind(this);
   }
 
   componentDidMount() {
     const socket = new Socket();
     const self = this;
 
-    socket.on('data', (buffer) => {
-      if (buffer === undefined)
+    socket.on('data', (data) => {
+      if (data === undefined)
         return;
 
-      buffer = telnetParse(buffer);
-      buffer = ansiParse(buffer);
+      data = telnetParse(data);
+      data = ansiParse(data);
 
-      let newOutput = this.state.output + buffer.toString();
-      if (newOutput !== this.state.output) {
-        self.setState({output: newOutput});
+      let newBuffer = this.state.buffer + data.toString();
+      if (newBuffer !== this.state.buffer) {
+        self.setState({buffer: newBuffer});
       }
     });
 
@@ -39,10 +43,33 @@ export default class Terminal extends React.Component {
     });
   }
 
+  handleKeyUp(event) {
+    event.preventDefault();
+    let character = 'a'; // TODO: get the actual character entered
+    let newOutput = this.state.output + character;
+    if (newOutput != this.state.output) {
+      this.setState({output: newOutput});
+    }
+  }
+
   render() {
+    let style = {
+      fontFamily: "Consolas, monospace",
+      fontSize: "1.25em",
+      width: "48.5em",  // hack for 80 columns
+      height: "35em",   // hack for 30 rows
+      padding: "5px",
+      border: "0",
+      backgroundColor: "black",
+      color: "white"
+    };
+
     return (
       <div>
-        {this.state.output}
+        <textarea style={style} onKeyUp={this.handleKeyUp} value={this.state.buffer}/>
+        <div>
+          {this.state.output}
+        </div>
       </div>
     )
   }

@@ -8,10 +8,10 @@
     "majormud",
     "megamud"
   ],
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "webpack --watch",
+    "develop": "webpack --watch",
     "build": "webpack"
   },
   "homepage": "https://github.com/Exide/majormud-client",
@@ -30,6 +30,7 @@
     "electron": "^1.6.11",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "webpack": "^3.0.0"
+    "webpack": "^3.2.0",
+    "webpack-dev-server": "^2.5.1"
   }
 }
