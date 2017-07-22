@@ -9,10 +9,10 @@
   ],
   "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
+    "clean": "rm -rf dist node_modules",
     "develop": "webpack --watch",
-    "build": "webpack",
-    "clean": "rm -rf dist"
+    "build": "webpack; cp resources/* dist/",
+    "app": "electron ."
   },
   "homepage": "https://github.com/Exide/majormud-client",
   "repository": {
