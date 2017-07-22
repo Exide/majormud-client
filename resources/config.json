@@ -1,7 +1,0 @@
-{
-  "host": "greatermud.com",
-  "port": 23,
-  "username": "your-username-goes-here",
-  "password": "your-password-goes-here",
-  "timeout": 5000
-}
