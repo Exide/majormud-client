@@ -1,16 +1,34 @@
-const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
-  entry: path.resolve(__dirname, 'src', 'renderer.js'),
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
-  },
+
   target: 'node',
+
+  entry: {
+    app: [
+      'webpack/hot/dev-server',
+      __dirname + '/src/renderer.js'
+    ]
+  },
+
+  output: {
+    filename: 'bundle.js',
+    publicPath: 'http://localhost:8080/'
+  },
+
+  devServer: {
+    contentBase: __dirname + '/resources',
+    publicPath: 'http://localhost:8080/'
+  },
+
   module: {
     loaders: [
-      { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.jsx$/, loader: 'babel-loader', exclude: /node_modules/ }
+      { test: /\.jsx?$/, loader: 'babel-loader', exclude: /node_modules/ }
     ]
-  }
+  },
+
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
+
 };

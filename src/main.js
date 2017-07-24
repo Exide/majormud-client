@@ -5,7 +5,7 @@ let window;
 
 app.on('ready', () => {
   window = new BrowserWindow({width: 1000, height: 800});
-  window.loadURL('file://' + __dirname + '/../dist/index.html');
+  window.loadURL('http://localhost:8080/index.html');
   window.webContents.openDevTools();
   window.on('closed', () => window = null);
 });
