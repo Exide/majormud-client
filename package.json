@@ -10,8 +10,7 @@
   "scripts": {
     "clean": "rm -rf dist node_modules",
     "server": "webpack-dev-server",
-    "app": "electron src/main.js",
-    "package": "electron-packager . --out=dist"
+    "app": "electron src/main.js"
   },
   "homepage": "https://github.com/Exide/majormud-client",
   "repository": {
@@ -27,7 +26,6 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "electron": "^1.6.11",
-    "electron-packager": "^8.7.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "webpack": "^3.2.0",
