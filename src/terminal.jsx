@@ -45,8 +45,7 @@ export default class Terminal extends React.Component {
 
   handleKeyUp(event) {
     event.preventDefault();
-    let character = 'a'; // TODO: get the actual character entered
-    let newOutput = this.state.output + character;
+    let newOutput = this.state.output + event.key;
     if (newOutput != this.state.output) {
       this.setState({output: newOutput});
     }
