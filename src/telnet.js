@@ -1,18 +1,27 @@
-const IAC = 255;
+import ASCII from './ascii';
 
-export const commands = {
-  255: 'IAC',
-  254: 'DONT',
-  253: 'DO',
-  252: 'WONT',
-  251: 'WILL',
-  250: 'SB',
-  240: 'SE'
+const Telnet = {
+  SubnegotiationEnd: 240,
+  NoOperation: 241,
+  DataMark: 242,
+  Break: 243,
+  InterruptProcess: 244,
+  AbortOutput: 245,
+  AreYouThere: 246,
+  EraseCharacter: 247,
+  EraseLine: 248,
+  GoAhead: 249,
+  SubnegotiationBegin: 250,
+  Will: 251,
+  Wont: 252,
+  Do: 253,
+  Dont: 254,
+  InterpretAsCommand: 255
 };
 
-export const options = {
-  1: 'ECHO',
-  3: 'SUPPRESS-GO-AHEAD'
+const Option = {
+  Echo: 1,
+  SuppressGoAhead: 3
 };
 
 /**
@@ -22,59 +31,45 @@ export const options = {
  * @returns {Buffer}
  */
 export const parse = (buffer) => {
+
+  let isParsingTelnetSequence = false;
+  let isNegotiatingOption = false;
+
   if (buffer === undefined)
     throw new TypeError('buffer cannot be undefined');
 
-  console.log('buffer:', buffer);
+  console.log('Telnet parse:', buffer);
 
-  for (let i = 0; i < buffer.length; ++i) {
-    let isIAC = buffer[i] === IAC;
-    let remainingBytes = buffer.length - (i + 1);
-    let hasRoom = remainingBytes >= 2;
-    if (isIAC && hasRoom) {
-      let iac = buffer[i];
-      let command = buffer[i+1];
-      let option = buffer[i+2];
-      buffer = buffer.slice(3);
-      console.log('Telnet command received:', commandToString(iac, command, option));
-    }
-  }
-
-  return buffer;
-};
-
-const commandToString = (iac, command, option) => {
   let output = [];
-  output.push(commands[iac]);
-  output.push(commands[command]);
-  option = option.toString();
-  let isKnownOption = option in Object.keys(options);
-  if (isKnownOption)
-    output.push(options[option]);
-  else
-    output.push(option);
-  return output.join(' ');
-};
+  let sequence = [];
 
-const negotiate = (socket, buffer) => {
-  let data = buffer;
-  let command;
-  let response;
+  while (buffer.length !== 0) {
+    let byte = buffer[0];
+    buffer = buffer.slice(1);
 
-  for (let i = 0; i < buffer.length; i += 3) {
-    if (buffer[i] != 255) {
-      data = buffer.slice(0, i);
-      command = buffer.slice(i);
-      break
+    if (isParsingTelnetSequence) {
+      sequence.push(byte);
+
+      let previousByte = sequence[sequence.length - 1];
+
+      if (isNegotiatingOption) {
+        isParsingTelnetSequence = false;
+        console.log('Telnet sequence:', sequence);
+        sequence = [];
+      } else {
+        isNegotiatingOption = (byte === Telnet.Will || byte === Telnet.Do);
+      }
+
+    } else {
+      
+      if (byte === Telnet.InterpretAsCommand) {
+        isParsingTelnetSequence = true;
+        sequence.push(byte);
+      } else {
+        output.push(byte);
+      }
     }
   }
 
-  response = data.toString('hex')
-    .replace(/fd/g, 'fc')
-    .replace(/fb/g, 'fd');
-
-  socket.write(Buffer(response, 'hex'));
-
-  if (command !== undefined)
-    return command;
+  return Buffer.from(output);
 };

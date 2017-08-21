@@ -1,8 +1,4 @@
-const ASCII = {
-  Escape: 27,
-  LeftBracket: 91,
-  LowercaseM: 109
-};
+import ASCII from './ascii';
 
 const ANSI = {
   Normal: 0,
@@ -31,7 +27,7 @@ const ANSI = {
 };
 
 /**
- * Reads through a byte array looking for ANSI terminal commands.
+ * Reads through a byte array looking for ANSI terminal commands, removing them.
  *
  * @param {Buffer} buffer
  * @returns {Buffer}
@@ -43,7 +39,7 @@ export const parse = (buffer) => {
   if (buffer === undefined)
     throw new TypeError('buffer cannot be undefined');
 
-  console.log('buffer:', buffer);
+  console.log('ANSI parse:', buffer);
 
   let output = [];
   let sequence = [];
@@ -55,9 +51,10 @@ export const parse = (buffer) => {
     if (isParsingANSISequence) {
       sequence.push(byte);
 
-      if (byte === ASCII.LowercaseM) {
+
+      if (byte === ASCII.LowercaseM || byte === ASCII.UppercaseH || byte === ASCII.UppercaseJ) {
         isParsingANSISequence = false;
-        console.log('ANSI sequence:', sequence);
+        console.log('ANSI sequence:', sequenceToString(sequence), sequence);
         sequence = [];
       }
     } else {
@@ -72,4 +69,10 @@ export const parse = (buffer) => {
   }
 
   return Buffer.from(output);
+};
+
+const sequenceToString = (byteArray) => {
+  return byteArray
+    .map(byte => byte === 27 ? '^' : String.fromCharCode(byte))
+    .join('');
 };
