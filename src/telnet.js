@@ -1,6 +1,4 @@
-import ASCII from './ascii';
-
-const Telnet = {
+const Command = {
   SubnegotiationEnd: 240,
   NoOperation: 241,
   DataMark: 242,
@@ -23,6 +21,8 @@ const Option = {
   Echo: 1,
   SuppressGoAhead: 3
 };
+
+const UNKNOWN_BYTE = '?';
 
 /**
  * Reads through a byte array looking for Telnet commands, removing them.
@@ -50,19 +50,21 @@ export const parse = (buffer) => {
     if (isParsingTelnetSequence) {
       sequence.push(byte);
 
-      let previousByte = sequence[sequence.length - 1];
-
       if (isNegotiatingOption) {
         isParsingTelnetSequence = false;
-        console.log('Telnet sequence:', sequence);
+        isNegotiatingOption = false;
+
+        console.log('Telnet sequence:', sequenceToString(sequence), sequence);
         sequence = [];
       } else {
-        isNegotiatingOption = (byte === Telnet.Will || byte === Telnet.Do);
+        let isOptionOffer = byte === Command.Will;
+        let isOptionRequest = byte === Command.Do;
+        isNegotiatingOption = isOptionOffer || isOptionRequest;
       }
 
     } else {
       
-      if (byte === Telnet.InterpretAsCommand) {
+      if (byte === Command.InterpretAsCommand) {
         isParsingTelnetSequence = true;
         sequence.push(byte);
       } else {
@@ -72,4 +74,30 @@ export const parse = (buffer) => {
   }
 
   return Buffer.from(output);
+};
+
+const sequenceToString = (sequence) => {
+  if (sequence.length === 3 && isNegotiationCommand(sequence[1])) {
+    let command = getCommandName(sequence[1]);
+    let option = getOptionName(sequence[2]);
+    return `IAC ${command} ${option}`;
+  } else {
+    return 'unknown sequence';
+  }
+};
+
+const isNegotiationCommand = (byte) => {
+  return byte >= 251 && byte <= 254;
+};
+
+const getCommandName = (byte) => {
+  let entries = Object.entries(Command).filter(([name, code]) => byte === code);
+  let entry = entries[0] || UNKNOWN_BYTE;
+  return entry[0] || UNKNOWN_BYTE;
+};
+
+const getOptionName = (byte) => {
+  let entries = Object.entries(Option).filter(([name, code]) => byte === code);
+  let entry = entries[0] || UNKNOWN_BYTE;
+  return entry[0] || UNKNOWN_BYTE;
 };
