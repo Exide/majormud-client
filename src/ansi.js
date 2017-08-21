@@ -26,6 +26,12 @@ const ANSI = {
   BackgroundDefault: 49
 };
 
+const Code = {
+  CursorPosition: ASCII.UppercaseH,
+  EraseDisplay: ASCII.UppercaseJ,
+  SelectGraphicRendition: ASCII.LowercaseM
+};
+
 /**
  * Reads through a byte array looking for ANSI terminal commands, removing them.
  *
@@ -51,8 +57,7 @@ export const parse = (buffer) => {
     if (isParsingANSISequence) {
       sequence.push(byte);
 
-
-      if (byte === ASCII.LowercaseM || byte === ASCII.UppercaseH || byte === ASCII.UppercaseJ) {
+      if (isSequenceTerminator(byte)) {
         isParsingANSISequence = false;
         console.log('ANSI sequence:', sequenceToString(sequence), sequence);
         sequence = [];
@@ -69,6 +74,10 @@ export const parse = (buffer) => {
   }
 
   return Buffer.from(output);
+};
+
+const isSequenceTerminator = (byte) => {
+  return Object.values(Code).includes(byte);
 };
 
 const sequenceToString = (byteArray) => {
