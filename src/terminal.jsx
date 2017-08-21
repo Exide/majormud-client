@@ -46,7 +46,7 @@ export default class Terminal extends React.Component {
   handleKeyUp(event) {
     event.preventDefault();
     let newOutput = this.state.output + event.key;
-    if (newOutput != this.state.output) {
+    if (newOutput !== this.state.output) {
       this.setState({output: newOutput});
     }
   }
