@@ -18,6 +18,7 @@ const Command = {
 };
 
 const Option = {
+  BinaryTransmission: 0,
   Echo: 1,
   SuppressGoAhead: 3
 };
@@ -38,8 +39,6 @@ export const parse = (buffer) => {
   if (buffer === undefined)
     throw new TypeError('buffer cannot be undefined');
 
-  console.log('Telnet parse:', buffer);
-
   let output = [];
   let sequence = [];
 
@@ -54,7 +53,7 @@ export const parse = (buffer) => {
         isParsingTelnetSequence = false;
         isNegotiatingOption = false;
 
-        console.log('Telnet sequence:', sequenceToString(sequence), sequence);
+        console.log('Telnet sequence:', convertToNames(sequence), sequence);
         sequence = [];
       } else {
         let isOptionOffer = byte === Command.Will;
@@ -76,13 +75,15 @@ export const parse = (buffer) => {
   return Buffer.from(output);
 };
 
-const sequenceToString = (sequence) => {
+const convertToNames = (sequence) => {
   if (sequence.length === 3 && isNegotiationCommand(sequence[1])) {
-    let command = getCommandName(sequence[1]);
-    let option = getOptionName(sequence[2]);
-    return `IAC ${command} ${option}`;
+    return [
+      getCommandName(sequence[0]),
+      getCommandName(sequence[1]),
+      getOptionName(sequence[2])
+    ];
   } else {
-    return 'unknown sequence';
+    return sequence.map(byte => getCommandName(byte));
   }
 };
 

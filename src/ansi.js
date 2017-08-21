@@ -1,7 +1,7 @@
 import ASCII from './ascii';
 
-const ANSI = {
-  Normal: 0,
+export const Code = {
+  Reset: 0,
   Bold: 1,
   Blink: 5,
   ForegroundBlack: 30,
@@ -26,11 +26,13 @@ const ANSI = {
   BackgroundDefault: 49
 };
 
-const Code = {
+export const Command = {
   CursorPosition: ASCII.UppercaseH,
   EraseDisplay: ASCII.UppercaseJ,
   SelectGraphicRendition: ASCII.LowercaseM
 };
+
+const UNKNOWN_BYTE = '?';
 
 /**
  * Reads through a byte array looking for ANSI terminal commands, removing them.
@@ -45,8 +47,6 @@ export const parse = (buffer) => {
   if (buffer === undefined)
     throw new TypeError('buffer cannot be undefined');
 
-  console.log('ANSI parse:', buffer);
-
   let output = [];
   let sequence = [];
 
@@ -59,7 +59,7 @@ export const parse = (buffer) => {
 
       if (isSequenceTerminator(byte)) {
         isParsingANSISequence = false;
-        console.log('ANSI sequence:', sequenceToString(sequence), sequence);
+        console.log('ANSI sequence:', convertToNames(sequence), convertToString(sequence), sequence);
         sequence = [];
       }
     } else {
@@ -77,11 +77,26 @@ export const parse = (buffer) => {
 };
 
 const isSequenceTerminator = (byte) => {
-  return Object.values(Code).includes(byte);
+  return Object.values(Command).includes(byte);
 };
 
-const sequenceToString = (byteArray) => {
-  return byteArray
+const convertToString = (sequence) => {
+  return sequence
     .map(byte => byte === 27 ? '^' : String.fromCharCode(byte))
     .join('');
+};
+
+const convertToNames = (sequence) => {
+  return convertToString(sequence)
+    .slice(2, -1)
+    .split(';')
+    .map(codeAsString => Number(codeAsString))
+    .map(codeAsNumber => getCodeName(codeAsNumber));
+};
+
+const getCodeName = (code) => {
+  if (typeof code !== 'number') code = Number(code);
+  let entries = Object.entries(Code).filter(([key, value]) => code === value);
+  let entry = entries[0] || UNKNOWN_BYTE;
+  return entry[0] || UNKNOWN_BYTE;
 };
