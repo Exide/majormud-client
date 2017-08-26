@@ -25,26 +25,20 @@ const Option = {
 
 const UNKNOWN_BYTE = '?';
 
-/**
- * Reads through a byte array looking for Telnet commands, removing them.
- *
- * @param {Buffer} buffer
- * @returns {Buffer}
- */
-export const parse = (buffer) => {
+export const parse = (input) => {
+
+  if (input.type !== 'raw') return input;
 
   let isParsingTelnetSequence = false;
   let isNegotiatingOption = false;
-
-  if (buffer === undefined)
-    throw new TypeError('buffer cannot be undefined');
-
   let output = [];
   let sequence = [];
 
-  while (buffer.length !== 0) {
-    let byte = buffer[0];
-    buffer = buffer.slice(1);
+  // console.log('telnet parsing:', input.bytes);
+
+  while (input.bytes.length !== 0) {
+    let byte = input.bytes[0];
+    input.bytes = input.bytes.slice(1);
 
     if (isParsingTelnetSequence) {
       sequence.push(byte);
@@ -52,8 +46,9 @@ export const parse = (buffer) => {
       if (isNegotiatingOption) {
         isParsingTelnetSequence = false;
         isNegotiatingOption = false;
-
-        console.log('Telnet sequence:', convertToNames(sequence), sequence);
+        // console.log('Telnet sequence:', convertToNames(sequence), sequence);
+        let message = {type: 'telnet', bytes: Buffer.from(sequence)};
+        output.push(message);
         sequence = [];
       } else {
         let isOptionOffer = byte === Command.Will;
@@ -65,25 +60,39 @@ export const parse = (buffer) => {
       
       if (byte === Command.InterpretAsCommand) {
         isParsingTelnetSequence = true;
-        sequence.push(byte);
-      } else {
-        output.push(byte);
+
+        if (sequence.length !== 0) {
+          let message = {type: 'raw', bytes: Buffer.from(sequence)};
+          output.push(message);
+          sequence = [];
+        }
       }
+
+      sequence.push(byte);
     }
   }
 
-  return Buffer.from(output);
+  if (sequence.length !== 0) {
+    if (isParsingTelnetSequence) {
+      output.push({type: 'telnet', bytes: Buffer.from(sequence)});
+    } else {
+      output.push({type: 'raw', bytes: Buffer.from(sequence)});
+    }
+
+  }
+
+  return output;
 };
 
-const convertToNames = (sequence) => {
-  if (sequence.length === 3 && isNegotiationCommand(sequence[1])) {
+export const convertToNames = (buffer) => {
+  if (buffer.length === 3 && isNegotiationCommand(buffer[1])) {
     return [
-      getCommandName(sequence[0]),
-      getCommandName(sequence[1]),
-      getOptionName(sequence[2])
+      getCommandName(buffer[0]),
+      getCommandName(buffer[1]),
+      getOptionName(buffer[2])
     ];
   } else {
-    return sequence.map(byte => getCommandName(byte));
+    return buffer.map(byte => getCommandName(byte));
   }
 };
 

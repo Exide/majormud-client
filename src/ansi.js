@@ -34,60 +34,70 @@ export const Command = {
 
 const UNKNOWN_BYTE = '?';
 
-/**
- * Reads through a byte array looking for ANSI terminal commands, removing them.
- *
- * @param {Buffer} buffer
- * @returns {Buffer}
- */
-export const parse = (buffer) => {
+export const parse = (input) => {
+
+  if (input.type !== 'raw') return input;
 
   let isParsingANSISequence = false;
-
-  if (buffer === undefined)
-    throw new TypeError('buffer cannot be undefined');
-
   let output = [];
   let sequence = [];
 
-  while (buffer.length !== 0) {
-    let byte = buffer[0];
-    buffer = buffer.slice(1);
+  // console.log('ansi parsing:', input);
+
+  while (input.bytes.length !== 0) {
+    let byte = input.bytes[0];
+    input.bytes = input.bytes.slice(1);
 
     if (isParsingANSISequence) {
       sequence.push(byte);
 
       if (isSequenceTerminator(byte)) {
         isParsingANSISequence = false;
-        console.log('ANSI sequence:', convertToNames(sequence), convertToString(sequence), sequence);
+        // console.log('ANSI sequence:', convertToNames(sequence), convertToString(sequence), sequence);
+        let message = {type: 'ansi', bytes: Buffer.from(sequence)};
+        output.push(message);
         sequence = [];
       }
+
     } else {
 
       if (byte === ASCII.Escape) {
         isParsingANSISequence = true;
-        sequence.push(byte);
-      } else {
-        output.push(byte);
+
+        if (sequence.length !== 0) {
+          let message = {type: 'raw', bytes: Buffer.from(sequence)};
+          output.push(message);
+          sequence = [];
+        }
       }
+
+      sequence.push(byte);
     }
   }
 
-  return Buffer.from(output);
+  if (sequence.length !== 0) {
+    if (isParsingANSISequence) {
+      output.push({type: 'ansi', bytes: Buffer.from(sequence)});
+    } else {
+      output.push({type: 'raw', bytes: Buffer.from(sequence)});
+    }
+  }
+
+  return output;
 };
 
 const isSequenceTerminator = (byte) => {
   return Object.values(Command).includes(byte);
 };
 
-const convertToString = (sequence) => {
-  return sequence
-    .map(byte => byte === 27 ? '^' : String.fromCharCode(byte))
+export const convertToString = (buffer) => {
+  return [...buffer]
+    .map(number => number === 27 ? '^' : String.fromCharCode(number))
     .join('');
 };
 
-const convertToNames = (sequence) => {
-  return convertToString(sequence)
+export const convertToNames = (buffer) => {
+  return convertToString(buffer)
     .slice(2, -1)
     .split(';')
     .map(codeAsString => Number(codeAsString))

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Socket} from 'net';
-import {parse as telnetParse} from './telnet';
-import {parse as ansiParse} from './ansi';
+import {parse as parseTelnet, convertToNames as convertTelnetToNames} from './telnet';
+import {parse as parseANSI, convertToNames as convertANSIToNames, convertToString as convertANSIToString} from './ansi';
 
 export default class Terminal extends React.Component {
 
@@ -20,14 +20,38 @@ export default class Terminal extends React.Component {
     const socket = new Socket();
     const self = this;
 
-    socket.on('data', (data) => {
-      if (data === undefined)
+    socket.on('data', (bytes) => {
+      if (bytes === undefined)
         return;
 
-      data = telnetParse(data);
-      data = ansiParse(data);
+      console.log('-----');
+      console.log('bytes:', bytes);
 
-      let newBuffer = this.state.buffer + data.toString();
+      let messages = [{type: 'raw', bytes: bytes}];
+
+      messages = [].concat(...messages.map(parseTelnet));
+      messages = [].concat(...messages.map(parseANSI));
+
+      messages.forEach(message => {
+        switch (message.type) {
+          case 'telnet':
+            console.log(message.type, convertTelnetToNames(message.bytes), message.bytes);
+            break;
+          case 'ansi':
+            console.log(message.type, convertANSIToNames(message.bytes), convertANSIToString(message.bytes), message.bytes);
+            break;
+          default:
+            console.log(message.type, `"${message.bytes.toString()}"`, message.bytes);
+            break;
+        }
+      });
+
+      let text = messages
+        .filter(message => message.type === 'raw')
+        .map(message => message.bytes.toString())
+        .join('');
+
+      let newBuffer = this.state.buffer + text;
       if (newBuffer !== this.state.buffer) {
         self.setState({buffer: newBuffer});
       }
