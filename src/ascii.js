@@ -1,4 +1,4 @@
-export default {
+export const keyCodes = {
   Null: 0,
   StartOfHeading: 1,
   Bell: 7,
@@ -63,3 +63,19 @@ export default {
   LowercaseY: 121,
   LowercaseZ: 122
 };
+
+export const keyCodeFromJSEvent = (event) => {
+  if (isUppercaseLetter(event.keyCode) && !event.shiftKey) {
+    return getLowercase(event.keyCode);
+  } else {
+    return event.keyCode;
+  }
+};
+
+function isUppercaseLetter(code) {
+  return code >= 65 && code <= 90;
+}
+
+function getLowercase(code) {
+  return code + 32;
+}

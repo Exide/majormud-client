@@ -2,25 +2,21 @@ import React from 'react';
 import {Socket} from 'net';
 import {parse as parseTelnet, convertToNames as convertTelnetToNames} from './telnet';
 import {parse as parseANSI, convertToNames as convertANSIToNames, convertToString as convertANSIToString} from './ansi';
+import {keyCodeFromJSEvent} from './ascii';
 
 export default class Terminal extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      buffer: '',
-      output: ''
-    };
-
+    this.state = {buffer: ''};
+    this.socket = new Socket();
     this.handleKeyUp = this.handleKeyUp.bind(this);
   }
 
   componentDidMount() {
-    const socket = new Socket();
     const self = this;
 
-    socket.on('data', (bytes) => {
+    this.socket.on('data', (bytes) => {
       if (bytes === undefined)
         return;
 
@@ -57,22 +53,20 @@ export default class Terminal extends React.Component {
       }
     });
 
-    socket.on('close', () => {
+    this.socket.on('close', () => {
       console.log('socket closed');
     });
 
     console.log('connecting to:', this.props.host, 23);
-    socket.connect(23, this.props.host, () => {
+    this.socket.connect(23, this.props.host, () => {
       console.log('socket opened');
     });
   }
 
   handleKeyUp(event) {
     event.preventDefault();
-    let newOutput = this.state.output + event.key;
-    if (newOutput !== this.state.output) {
-      this.setState({output: newOutput});
-    }
+    let asciiCode = keyCodeFromJSEvent(event);
+    this.socket.write(Buffer.from([asciiCode]));
   }
 
   render() {
@@ -90,9 +84,6 @@ export default class Terminal extends React.Component {
     return (
       <div>
         <textarea style={style} onKeyUp={this.handleKeyUp} value={this.state.buffer}/>
-        <div>
-          {this.state.output}
-        </div>
       </div>
     )
   }
