@@ -45,7 +45,6 @@ export default class Terminal extends React.Component {
       messages.filter(message => message.type === 'raw')
         .forEach(message => {
           for (const byte of message.bytes) {
-            console.log('byte:', byte);
             if (byte === 8) {
               self.setBuffer(this.state.buffer.slice(0, this.state.buffer.length - 1));
             } else {
