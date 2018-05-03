@@ -2,7 +2,7 @@ import React from 'react';
 import {Socket} from 'net';
 import {parse as parseTelnet, convertToNames as convertTelnetToNames} from './telnet';
 import {parse as parseANSI, convertToNames as convertANSIToNames, convertToString as convertANSIToString} from './ansi';
-import {keyCodeFromJSEvent} from './ascii';
+import {getASCIICode} from './ascii';
 
 export default class Terminal extends React.Component {
 
@@ -10,7 +10,7 @@ export default class Terminal extends React.Component {
     super(props);
     this.state = {buffer: ''};
     this.socket = new Socket();
-    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
@@ -31,26 +31,28 @@ export default class Terminal extends React.Component {
       messages.forEach(message => {
         switch (message.type) {
           case 'telnet':
-            console.log(message.type, convertTelnetToNames(message.bytes), message.bytes);
+            console.debug(message.type, convertTelnetToNames(message.bytes), message.bytes);
             break;
           case 'ansi':
-            console.log(message.type, convertANSIToNames(message.bytes), convertANSIToString(message.bytes), message.bytes);
+            console.debug(message.type, convertANSIToNames(message.bytes), convertANSIToString(message.bytes), message.bytes);
             break;
           default:
-            console.log(message.type, `"${message.bytes.toString()}"`, message.bytes);
+            console.debug(message.type, `"${message.bytes.toString()}"`, message.bytes);
             break;
         }
       });
 
-      let text = messages
-        .filter(message => message.type === 'raw')
-        .map(message => message.bytes.toString())
-        .join('');
-
-      let newBuffer = this.state.buffer + text;
-      if (newBuffer !== this.state.buffer) {
-        self.setState({buffer: newBuffer});
-      }
+      messages.filter(message => message.type === 'raw')
+        .forEach(message => {
+          for (const byte of message.bytes) {
+            console.log('byte:', byte);
+            if (byte === 8) {
+              self.setBuffer(this.state.buffer.slice(0, this.state.buffer.length - 1));
+            } else {
+              self.setBuffer(this.state.buffer + String.fromCharCode(byte));
+            }
+          }
+        });
     });
 
     this.socket.on('close', () => {
@@ -63,9 +65,15 @@ export default class Terminal extends React.Component {
     });
   }
 
-  handleKeyUp(event) {
+  setBuffer(buffer) {
+    if (buffer !== this.state.buffer) {
+      this.setState({buffer: buffer});
+    }
+  }
+
+  handleKeyDown(event) {
     event.preventDefault();
-    let asciiCode = keyCodeFromJSEvent(event);
+    let asciiCode = getASCIICode(event.nativeEvent);
     this.socket.write(Buffer.from([asciiCode]));
   }
 
@@ -83,7 +91,7 @@ export default class Terminal extends React.Component {
 
     return (
       <div>
-        <textarea style={style} onKeyUp={this.handleKeyUp} value={this.state.buffer}/>
+        <textarea style={style} onKeyDown={this.handleKeyDown} value={this.state.buffer}/>
       </div>
     )
   }
