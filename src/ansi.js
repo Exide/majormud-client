@@ -1,4 +1,4 @@
-import {keyCodes} from './ascii';
+import {CharacterCode} from './ascii';
 
 export const Code = {
   Reset: 0,
@@ -27,9 +27,9 @@ export const Code = {
 };
 
 export const Command = {
-  CursorPosition: keyCodes.UppercaseH,
-  EraseDisplay: keyCodes.UppercaseJ,
-  SelectGraphicRendition: keyCodes.LowercaseM
+  CursorPosition: CharacterCode.H,
+  EraseDisplay: CharacterCode.J,
+  SelectGraphicRendition: CharacterCode.m
 };
 
 const UNKNOWN_BYTE = '?';
@@ -57,7 +57,7 @@ export const parse = (input) => {
 
     } else {
 
-      if (byte === keyCodes.Escape) {
+      if (byte === CharacterCode.ESC) {
         isParsingANSISequence = true;
 
         if (sequence.length !== 0) {
