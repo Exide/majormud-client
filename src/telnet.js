@@ -34,8 +34,6 @@ export const parse = (input) => {
   let output = [];
   let sequence = [];
 
-  // console.log('telnet parsing:', input.bytes);
-
   while (input.bytes.length !== 0) {
     let byte = input.bytes[0];
     input.bytes = input.bytes.slice(1);
@@ -46,9 +44,7 @@ export const parse = (input) => {
       if (isNegotiatingOption) {
         isParsingTelnetSequence = false;
         isNegotiatingOption = false;
-        // console.log('Telnet sequence:', convertToNames(sequence), sequence);
-        let message = {type: 'telnet', bytes: Buffer.from(sequence)};
-        output.push(message);
+        output.push({type: 'telnet', bytes: Buffer.from(sequence)});
         sequence = [];
       } else {
         let isOptionOffer = byte === Command.Will;
@@ -62,8 +58,7 @@ export const parse = (input) => {
         isParsingTelnetSequence = true;
 
         if (sequence.length !== 0) {
-          let message = {type: 'raw', bytes: Buffer.from(sequence)};
-          output.push(message);
+          output.push({type: 'raw', bytes: Buffer.from(sequence)});
           sequence = [];
         }
       }
