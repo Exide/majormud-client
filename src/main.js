@@ -4,7 +4,7 @@ const {app, BrowserWindow} = require('electron');
 let window;
 
 app.on('ready', () => {
-  window = new BrowserWindow({width: 1000, height: 800});
+  window = new BrowserWindow({width: 2460, height: 800});
   window.loadURL('http://localhost:8080/index.html');
   window.webContents.openDevTools();
   window.on('closed', () => window = null);

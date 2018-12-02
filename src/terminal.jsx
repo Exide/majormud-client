@@ -2,30 +2,25 @@ import React from 'react';
 import {Socket} from 'net';
 import {parse as parseTelnet, convertToNames as convertTelnetToNames} from './telnet';
 import {parse as parseANSI, convertToNames as convertANSIToNames, convertToString as convertANSIToString} from './ansi';
+import {getASCIICode} from './ascii';
 
 export default class Terminal extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      buffer: '',
-      output: ''
-    };
-
-    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.state = {buffer: ''};
+    this.socket = new Socket();
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
-    const socket = new Socket();
     const self = this;
 
-    socket.on('data', (bytes) => {
+    this.socket.on('data', (bytes) => {
       if (bytes === undefined)
         return;
 
-      console.log('-----');
-      console.log('bytes:', bytes);
+      console.debug('bytes received:', bytes);
 
       let messages = [{type: 'raw', bytes: bytes}];
 
@@ -35,44 +30,52 @@ export default class Terminal extends React.Component {
       messages.forEach(message => {
         switch (message.type) {
           case 'telnet':
-            console.log(message.type, convertTelnetToNames(message.bytes), message.bytes);
+            console.debug('bytes parsed:', message.type, convertTelnetToNames(message.bytes), message.bytes);
             break;
           case 'ansi':
-            console.log(message.type, convertANSIToNames(message.bytes), convertANSIToString(message.bytes), message.bytes);
+            console.debug('bytes parsed:', message.type, convertANSIToNames(message.bytes), convertANSIToString(message.bytes), message.bytes);
             break;
           default:
-            console.log(message.type, `"${message.bytes.toString()}"`, message.bytes);
+            console.debug('bytes parsed:', message.type, `"${message.bytes.toString()}"`, message.bytes);
             break;
         }
       });
 
-      let text = messages
-        .filter(message => message.type === 'raw')
-        .map(message => message.bytes.toString())
-        .join('');
-
-      let newBuffer = this.state.buffer + text;
-      if (newBuffer !== this.state.buffer) {
-        self.setState({buffer: newBuffer});
-      }
+      messages.filter(message => message.type === 'raw')
+        .forEach(message => {
+          for (const byte of message.bytes) {
+            if (byte === 8) {
+              self.setBuffer(this.state.buffer.slice(0, this.state.buffer.length - 1));
+            } else {
+              self.setBuffer(this.state.buffer + String.fromCharCode(byte));
+            }
+          }
+        });
     });
 
-    socket.on('close', () => {
-      console.log('socket closed');
+    this.socket.on('close', () => {
+      console.debug('socket closed');
+      console.info('disconnected');
     });
 
-    console.log('connecting to:', this.props.host, 23);
-    socket.connect(23, this.props.host, () => {
-      console.log('socket opened');
+    let port = 23;
+    console.info('connecting to:', this.props.host, port);
+    this.socket.connect(port, this.props.host, () => {
+      console.debug('socket opened to:', this.props.host, port);
+      console.info('connected');
     });
   }
 
-  handleKeyUp(event) {
-    event.preventDefault();
-    let newOutput = this.state.output + event.key;
-    if (newOutput !== this.state.output) {
-      this.setState({output: newOutput});
+  setBuffer(buffer) {
+    if (buffer !== this.state.buffer) {
+      this.setState({buffer: buffer});
     }
+  }
+
+  handleKeyDown(event) {
+    event.preventDefault();
+    let asciiCode = getASCIICode(event.nativeEvent);
+    this.socket.write(Buffer.from([asciiCode]));
   }
 
   render() {
@@ -89,10 +92,7 @@ export default class Terminal extends React.Component {
 
     return (
       <div>
-        <textarea style={style} onKeyUp={this.handleKeyUp} value={this.state.buffer}/>
-        <div>
-          {this.state.output}
-        </div>
+        <textarea style={style} onKeyDown={this.handleKeyDown} value={this.state.buffer}/>
       </div>
     )
   }

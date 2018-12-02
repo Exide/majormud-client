@@ -1,4 +1,4 @@
-import ASCII from './ascii';
+import {CharacterCode} from './ascii';
 
 export const Code = {
   Reset: 0,
@@ -27,9 +27,9 @@ export const Code = {
 };
 
 export const Command = {
-  CursorPosition: ASCII.UppercaseH,
-  EraseDisplay: ASCII.UppercaseJ,
-  SelectGraphicRendition: ASCII.LowercaseM
+  CursorPosition: CharacterCode.H,
+  EraseDisplay: CharacterCode.J,
+  SelectGraphicRendition: CharacterCode.m
 };
 
 const UNKNOWN_BYTE = '?';
@@ -42,8 +42,6 @@ export const parse = (input) => {
   let output = [];
   let sequence = [];
 
-  // console.log('ansi parsing:', input);
-
   while (input.bytes.length !== 0) {
     let byte = input.bytes[0];
     input.bytes = input.bytes.slice(1);
@@ -53,20 +51,17 @@ export const parse = (input) => {
 
       if (isSequenceTerminator(byte)) {
         isParsingANSISequence = false;
-        // console.log('ANSI sequence:', convertToNames(sequence), convertToString(sequence), sequence);
-        let message = {type: 'ansi', bytes: Buffer.from(sequence)};
-        output.push(message);
+        output.push({type: 'ansi', bytes: Buffer.from(sequence)});
         sequence = [];
       }
 
     } else {
 
-      if (byte === ASCII.Escape) {
+      if (byte === CharacterCode.ESC) {
         isParsingANSISequence = true;
 
         if (sequence.length !== 0) {
-          let message = {type: 'raw', bytes: Buffer.from(sequence)};
-          output.push(message);
+          output.push({type: 'raw', bytes: Buffer.from(sequence)});
           sequence = [];
         }
       }
