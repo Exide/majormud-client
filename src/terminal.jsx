@@ -20,8 +20,7 @@ export default class Terminal extends React.Component {
       if (bytes === undefined)
         return;
 
-      console.log('-----');
-      console.log('bytes:', bytes);
+      console.debug('bytes received:', bytes);
 
       let messages = [{type: 'raw', bytes: bytes}];
 
@@ -31,13 +30,13 @@ export default class Terminal extends React.Component {
       messages.forEach(message => {
         switch (message.type) {
           case 'telnet':
-            console.debug(message.type, convertTelnetToNames(message.bytes), message.bytes);
+            console.debug('bytes parsed:', message.type, convertTelnetToNames(message.bytes), message.bytes);
             break;
           case 'ansi':
-            console.debug(message.type, convertANSIToNames(message.bytes), convertANSIToString(message.bytes), message.bytes);
+            console.debug('bytes parsed:', message.type, convertANSIToNames(message.bytes), convertANSIToString(message.bytes), message.bytes);
             break;
           default:
-            console.debug(message.type, `"${message.bytes.toString()}"`, message.bytes);
+            console.debug('bytes parsed:', message.type, `"${message.bytes.toString()}"`, message.bytes);
             break;
         }
       });
@@ -55,12 +54,15 @@ export default class Terminal extends React.Component {
     });
 
     this.socket.on('close', () => {
-      console.log('socket closed');
+      console.debug('socket closed');
+      console.info('disconnected');
     });
 
-    console.log('connecting to:', this.props.host, 23);
-    this.socket.connect(23, this.props.host, () => {
-      console.log('socket opened');
+    let port = 23;
+    console.info('connecting to:', this.props.host, port);
+    this.socket.connect(port, this.props.host, () => {
+      console.debug('socket opened to:', this.props.host, port);
+      console.info('connected');
     });
   }
 
