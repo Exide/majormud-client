@@ -1,4 +1,4 @@
-// source: https://www.asciitable.com/
+// source: http://www.asciitable.com/
 export const CharacterCode = {
   'NULL': 0,
   'SOH': 1,
@@ -27,7 +27,38 @@ export const CharacterCode = {
   'ESC': 27,
 
   'SPACE': 32,
-
+  '!': 33,
+  '"': 34,
+  '#': 35,
+  '$': 36,
+  '%': 37,
+  '&': 38,
+  '\'': 39,
+  '(': 40,
+  ')': 41,
+  '*': 42,
+  '+': 43,
+  ',': 44,
+  '-': 45,
+  '.': 46,
+  '/': 47,
+  '0': 48,
+  '1': 49,
+  '2': 50,
+  '3': 51,
+  '4': 52,
+  '5': 53,
+  '6': 54,
+  '7': 55,
+  '8': 56,
+  '9': 57,
+  ':': 58,
+  ';': 59,
+  '<': 60,
+  '=': 61,
+  '>': 62,
+  '?': 63,
+  '@': 64,
   'A': 65,
   'B': 66,
   'C': 67,
@@ -54,6 +85,12 @@ export const CharacterCode = {
   'X': 88,
   'Y': 89,
   'Z': 90,
+  '[': 91,
+  '\\': 92,
+  ']': 93,
+  '^': 94,
+  '_': 95,
+  '`': 96,
   'a': 97,
   'b': 98,
   'c': 99,
@@ -79,8 +116,21 @@ export const CharacterCode = {
   'w': 119,
   'x': 120,
   'y': 121,
-  'z': 122
+  'z': 122,
+  '{': 123,
+  '|': 124,
+  '}': 125,
+  '~': 126,
+  'DEL': 127
 };
+
+export function getCode(character) {
+  if (character in CharacterCode) {
+    return CharacterCode[character];
+  } else {
+    throw new TypeError(character);
+  }
+}
 
 /**
  * @param {KeyboardEvent} event
@@ -91,32 +141,44 @@ export function getASCIICode(event) {
     case 'Enter': return CharacterCode.CR;
     case 'Space': return CharacterCode.SPACE;
     case 'Backspace': return CharacterCode.BS;
-    case 'KeyA': return shouldCapitalize(event) ? CharacterCode.A : CharacterCode.a;
-    case 'KeyB': return shouldCapitalize(event) ? CharacterCode.B : CharacterCode.b;
-    case 'KeyC': return shouldCapitalize(event) ? CharacterCode.C : CharacterCode.c;
-    case 'KeyD': return shouldCapitalize(event) ? CharacterCode.D : CharacterCode.d;
-    case 'KeyE': return shouldCapitalize(event) ? CharacterCode.E : CharacterCode.e;
-    case 'KeyF': return shouldCapitalize(event) ? CharacterCode.F : CharacterCode.f;
-    case 'KeyG': return shouldCapitalize(event) ? CharacterCode.G : CharacterCode.g;
-    case 'KeyH': return shouldCapitalize(event) ? CharacterCode.H : CharacterCode.h;
-    case 'KeyI': return shouldCapitalize(event) ? CharacterCode.I : CharacterCode.i;
-    case 'KeyJ': return shouldCapitalize(event) ? CharacterCode.J : CharacterCode.j;
-    case 'KeyK': return shouldCapitalize(event) ? CharacterCode.K : CharacterCode.k;
-    case 'KeyL': return shouldCapitalize(event) ? CharacterCode.L : CharacterCode.l;
-    case 'KeyM': return shouldCapitalize(event) ? CharacterCode.M : CharacterCode.m;
-    case 'KeyN': return shouldCapitalize(event) ? CharacterCode.N : CharacterCode.n;
-    case 'KeyO': return shouldCapitalize(event) ? CharacterCode.O : CharacterCode.o;
-    case 'KeyP': return shouldCapitalize(event) ? CharacterCode.P : CharacterCode.p;
-    case 'KeyQ': return shouldCapitalize(event) ? CharacterCode.Q : CharacterCode.q;
-    case 'KeyR': return shouldCapitalize(event) ? CharacterCode.R : CharacterCode.r;
-    case 'KeyS': return shouldCapitalize(event) ? CharacterCode.S : CharacterCode.s;
-    case 'KeyT': return shouldCapitalize(event) ? CharacterCode.T : CharacterCode.t;
-    case 'KeyU': return shouldCapitalize(event) ? CharacterCode.U : CharacterCode.u;
-    case 'KeyV': return shouldCapitalize(event) ? CharacterCode.V : CharacterCode.v;
-    case 'KeyW': return shouldCapitalize(event) ? CharacterCode.W : CharacterCode.w;
-    case 'KeyX': return shouldCapitalize(event) ? CharacterCode.X : CharacterCode.x;
-    case 'KeyY': return shouldCapitalize(event) ? CharacterCode.Y : CharacterCode.y;
-    case 'KeyZ': return shouldCapitalize(event) ? CharacterCode.Z : CharacterCode.z;
+    case 'KeyA': return shouldCapitalize(event) ? getCode('A') : getCode('a');
+    case 'KeyB': return shouldCapitalize(event) ? getCode('B') : getCode('b');
+    case 'KeyC': return shouldCapitalize(event) ? getCode('C') : getCode('c');
+    case 'KeyD': return shouldCapitalize(event) ? getCode('D') : getCode('d');
+    case 'KeyE': return shouldCapitalize(event) ? getCode('E') : getCode('e');
+    case 'KeyF': return shouldCapitalize(event) ? getCode('F') : getCode('f');
+    case 'KeyG': return shouldCapitalize(event) ? getCode('G') : getCode('g');
+    case 'KeyH': return shouldCapitalize(event) ? getCode('H') : getCode('h');
+    case 'KeyI': return shouldCapitalize(event) ? getCode('I') : getCode('i');
+    case 'KeyJ': return shouldCapitalize(event) ? getCode('J') : getCode('j');
+    case 'KeyK': return shouldCapitalize(event) ? getCode('K') : getCode('k');
+    case 'KeyL': return shouldCapitalize(event) ? getCode('L') : getCode('l');
+    case 'KeyM': return shouldCapitalize(event) ? getCode('M') : getCode('m');
+    case 'KeyN': return shouldCapitalize(event) ? getCode('N') : getCode('n');
+    case 'KeyO': return shouldCapitalize(event) ? getCode('O') : getCode('o');
+    case 'KeyP': return shouldCapitalize(event) ? getCode('P') : getCode('p');
+    case 'KeyQ': return shouldCapitalize(event) ? getCode('Q') : getCode('q');
+    case 'KeyR': return shouldCapitalize(event) ? getCode('R') : getCode('r');
+    case 'KeyS': return shouldCapitalize(event) ? getCode('S') : getCode('s');
+    case 'KeyT': return shouldCapitalize(event) ? getCode('T') : getCode('t');
+    case 'KeyU': return shouldCapitalize(event) ? getCode('U') : getCode('u');
+    case 'KeyV': return shouldCapitalize(event) ? getCode('V') : getCode('v');
+    case 'KeyW': return shouldCapitalize(event) ? getCode('W') : getCode('w');
+    case 'KeyX': return shouldCapitalize(event) ? getCode('X') : getCode('x');
+    case 'KeyY': return shouldCapitalize(event) ? getCode('Y') : getCode('y');
+    case 'KeyZ': return shouldCapitalize(event) ? getCode('Z') : getCode('z');
+    case 'Digit1': return shouldUseAlternateKey(event) ? getCode('!') : getCode('1');
+    case 'Digit2': return shouldUseAlternateKey(event) ? getCode('@') : getCode('2');
+    case 'Digit3': return shouldUseAlternateKey(event) ? getCode('#') : getCode('3');
+    case 'Digit4': return shouldUseAlternateKey(event) ? getCode('$') : getCode('4');
+    case 'Digit5': return shouldUseAlternateKey(event) ? getCode('%') : getCode('5');
+    case 'Digit6': return shouldUseAlternateKey(event) ? getCode('^') : getCode('6');
+    case 'Digit7': return shouldUseAlternateKey(event) ? getCode('&') : getCode('7');
+    case 'Digit8': return shouldUseAlternateKey(event) ? getCode('*') : getCode('8');
+    case 'Digit9': return shouldUseAlternateKey(event) ? getCode('(') : getCode('9');
+    case 'Digit0': return shouldUseAlternateKey(event) ? getCode(')') : getCode('0');
+    case 'Minus': return shouldUseAlternateKey(event) ? getCode('_') : getCode('-');
+    case 'Equal': return shouldUseAlternateKey(event) ? getCode('+') : getCode('=');
     default:
       console.warn('no key mapping:', event.code);
       return CharacterCode.NULL;
@@ -127,4 +189,8 @@ function shouldCapitalize(event) {
   let capsLocked = event.getModifierState('CapsLock');
   let shifted = event.getModifierState('Shift');
   return capsLocked || shifted;
+}
+
+function shouldUseAlternateKey(event) {
+  return event.getModifierState('Shift');
 }
