@@ -1,6 +1,9 @@
-import {CharacterCode} from './ascii';
+import * as ascii from './ascii';
+import * as utils from './utils';
 
-export const Code = {
+// https://en.wikipedia.org/wiki/Windows-1252
+
+export const Encoding = {
   Reset: 0,
   Bold: 1,
   Blink: 5,
@@ -27,15 +30,14 @@ export const Code = {
 };
 
 export const Command = {
-  CursorPosition: CharacterCode.H,
-  EraseDisplay: CharacterCode.J,
-  SelectGraphicRendition: CharacterCode.m
+  CursorPosition: ascii.Encoding.H,
+  EraseDisplay: ascii.Encoding.J,
+  SelectGraphicRendition: ascii.Encoding.m
 };
 
-const UNKNOWN_BYTE = '?';
+const UNKNOWN_VALUE = '?';
 
-export const parse = (input) => {
-
+export function parse(input) {
   if (input.type !== 'raw') return input;
 
   let isParsingANSISequence = false;
@@ -51,17 +53,17 @@ export const parse = (input) => {
 
       if (isSequenceTerminator(byte)) {
         isParsingANSISequence = false;
-        output.push({type: 'ansi', bytes: Buffer.from(sequence)});
+        output.push(buildANSIMessage(sequence));
         sequence = [];
       }
 
     } else {
 
-      if (byte === CharacterCode.ESC) {
+      if (byte === ascii.Encoding.ESC) {
         isParsingANSISequence = true;
 
         if (sequence.length !== 0) {
-          output.push({type: 'raw', bytes: Buffer.from(sequence)});
+          output.push(utils.buildRawMessage(sequence));
           sequence = [];
         }
       }
@@ -72,36 +74,31 @@ export const parse = (input) => {
 
   if (sequence.length !== 0) {
     if (isParsingANSISequence) {
-      output.push({type: 'ansi', bytes: Buffer.from(sequence)});
+      output.push(buildANSIMessage(sequence));
     } else {
-      output.push({type: 'raw', bytes: Buffer.from(sequence)});
+      output.push(utils.buildRawMessage(sequence));
     }
   }
 
   return output;
-};
+}
 
-const isSequenceTerminator = (byte) => {
+function buildANSIMessage(sequence) {
+  return {
+    type: 'ansi',
+    bytes: Buffer.from(sequence),
+    parsed: sequence.map(getCommandByCode)
+  }
+}
+
+function isSequenceTerminator(byte) {
   return Object.values(Command).includes(byte);
-};
+}
 
-export const convertToString = (buffer) => {
-  return [...buffer]
-    .map(number => number === 27 ? '^' : String.fromCharCode(number))
-    .join('');
-};
+export function getCommandByCode(code) {
+  const entry = Object.entries(Encoding).find(utils.valueMatches(code));
+  if (!entry) return UNKNOWN_VALUE;
 
-export const convertToNames = (buffer) => {
-  return convertToString(buffer)
-    .slice(2, -1)
-    .split(';')
-    .map(codeAsString => Number(codeAsString))
-    .map(codeAsNumber => getCodeName(codeAsNumber));
-};
-
-const getCodeName = (code) => {
-  if (typeof code !== 'number') code = Number(code);
-  let entries = Object.entries(Code).filter(([key, value]) => code === value);
-  let entry = entries[0] || UNKNOWN_BYTE;
-  return entry[0] || UNKNOWN_BYTE;
-};
+  const [ command ] = entry;
+  return command;
+}

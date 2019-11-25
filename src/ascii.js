@@ -1,5 +1,7 @@
 // source: http://www.asciitable.com/
-export const CharacterCode = {
+import * as utils from './utils';
+
+export const Encoding = {
   'NULL': 0,
   'SOH': 1,
   'STX': 2,
@@ -124,23 +126,33 @@ export const CharacterCode = {
   'DEL': 127
 };
 
+const UNKNOWN_BYTE = '?';
+
 export function getCode(character) {
-  if (character in CharacterCode) {
-    return CharacterCode[character];
+  if (character in Encoding) {
+    return Encoding[character];
   } else {
     throw new TypeError(character);
   }
+}
+
+export function getCharacter(code) {
+  const entry = Object.entries(Encoding).find(utils.valueMatches(code));
+  if (!entry) return UNKNOWN_BYTE;
+
+  const [ character ] = entry;
+  return character;
 }
 
 /**
  * @param {KeyboardEvent} event
  * @returns {Number} ASCII character code
  */
-export function getASCIICode(event) {
+export function getCodeForEvent(event) {
   switch (event.code) {
-    case 'Enter': return CharacterCode.CR;
-    case 'Space': return CharacterCode.SPACE;
-    case 'Backspace': return CharacterCode.BS;
+    case 'Enter': return Encoding.CR;
+    case 'Space': return Encoding.SPACE;
+    case 'Backspace': return Encoding.BS;
     case 'KeyA': return shouldCapitalize(event) ? getCode('A') : getCode('a');
     case 'KeyB': return shouldCapitalize(event) ? getCode('B') : getCode('b');
     case 'KeyC': return shouldCapitalize(event) ? getCode('C') : getCode('c');
@@ -181,7 +193,7 @@ export function getASCIICode(event) {
     case 'Equal': return shouldUseAlternateKey(event) ? getCode('+') : getCode('=');
     default:
       console.warn('no key mapping:', event.code);
-      return CharacterCode.NULL;
+      return Encoding.NULL;
   }
 }
 

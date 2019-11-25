@@ -1,15 +1,33 @@
-const {app, BrowserWindow} = require('electron');
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
 
 // needs to be global so its not garbage collected
-let window;
+let mainWindow;
 
-app.on('ready', () => {
-  window = new BrowserWindow({width: 2460, height: 800});
-  window.loadURL('http://localhost:8080/index.html');
-  window.webContents.openDevTools();
-  window.on('closed', () => window = null);
+app.on('ready', async () => {
+  const windowOptions = {
+    width: 996,
+    height: 730,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  };
+
+  mainWindow = new BrowserWindow(windowOptions);
+
+  const indexHTML = path.resolve(__dirname, 'index.html');
+  await mainWindow.loadFile(indexHTML);
+
+  if (process.env.NODE_ENV === 'development') {
+    const devToolsOptions = {
+      mode: 'detach',
+      activate: false
+    };
+
+    mainWindow.webContents.openDevTools(devToolsOptions);
+  }
+
+  mainWindow.on('closed', () => mainWindow = null);
 });
 
-app.on('window-all-closed', () => {
-  app.quit();
-});
+app.on('window-all-closed', app.quit);
