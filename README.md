@@ -1,28 +1,10 @@
 # majormud-client
 A tool for automating the play of MajorMUD.
 
----
+## Development Guide
 
-## Setup a development environment
-
-1. Install dependencies
-    ```
     $ npm install
-    ```
+    $ npm run test
+    $ npm run start:dev
 
-2. Run a web server that watches for file changes
-    ```
-    $ npm run server
-    ```
-
-3. Launch the application
-    ```
-    $ npm run app
-    ```
-
-## Other Scripts
-
-- Remove everything thats been downloaded, built, or otherwise created since cloning the repo
-    ```
-    $ npm run clean
-    ```
+At this point you should have a development version of the application running locally.
