@@ -4,7 +4,6 @@ export function valueMatches(match) {
   return ([ /*skip*/, value ]) => value === match;
 }
 
-
 export function buildRawMessage(bytes) {
   return {
     type: 'raw',
