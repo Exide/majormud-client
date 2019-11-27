@@ -1,0 +1,10 @@
+body {
+  background-color: black;
+  color: lightgray;
+}
+
+#terminal {
+  font-family: 'Consolas', monospace;
+  font-size: 1em;
+  padding: 5px;
+}

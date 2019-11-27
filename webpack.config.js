@@ -1,34 +1,81 @@
-const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
-module.exports = {
-
-  target: 'node',
-
-  entry: {
-    app: [
-      'webpack/hot/dev-server',
-      __dirname + '/src/renderer.js'
-    ]
-  },
-
+const mainConfig = {
+  entry: './src/main.js',
+  target: 'electron-main',
   output: {
-    filename: 'bundle.js',
-    publicPath: 'http://localhost:8080/'
+    filename: 'main.bundle.js',
+    path: path.resolve(__dirname, 'dist')
   },
-
-  devServer: {
-    contentBase: __dirname + '/resources',
-    publicPath: 'http://localhost:8080/'
+  node: {
+    __dirname: false,
+    __filename: false
   },
-
+  resolve: {
+    extensions: [ '.js', '.json' ]
+  },
   module: {
-    loaders: [
-      { test: /\.jsx?$/, loader: 'babel-loader', exclude: /node_modules/ }
+    rules: [
+      {
+        test: /\.(png|svg|ico|icns|ttf)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
+      }
+    ]
+  }
+};
+
+const rendererConfig = {
+  entry: './src/renderer.jsx',
+  target: 'electron-renderer',
+  output: {
+    filename: 'renderer.bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  node: {
+    __dirname: false,
+    __filename: false
+  },
+  resolve: {
+    extensions: [ '.js', '.json', '.jsx' ]
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          query: {
+            presets: [ '@babel/env', '@babel/react' ]
+          }
+        }
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader?sourceMap'
+        ]
+      },
+      {
+        test: /\.(png|svg|ico|icns|ttf)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
+      }
     ]
   },
-
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new HtmlWebpackPlugin({
+      title: 'MajorMUD Client',
+      template: 'resources/index.html'
+    })
   ]
-
 };
+
+module.exports = [ mainConfig, rendererConfig ];

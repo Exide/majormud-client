@@ -1,3 +1,5 @@
+import * as utils from './utils';
+
 const Command = {
   SubnegotiationEnd: 240,
   NoOperation: 241,
@@ -23,10 +25,9 @@ const Option = {
   SuppressGoAhead: 3
 };
 
-const UNKNOWN_BYTE = '?';
+const UNKNOWN_VALUE = '?';
 
-export const parse = (input) => {
-
+export function parse(input) {
   if (input.type !== 'raw') return input;
 
   let isParsingTelnetSequence = false;
@@ -44,7 +45,7 @@ export const parse = (input) => {
       if (isNegotiatingOption) {
         isParsingTelnetSequence = false;
         isNegotiatingOption = false;
-        output.push({type: 'telnet', bytes: Buffer.from(sequence)});
+        output.push(buildTelnetMessage(sequence));
         sequence = [];
       } else {
         let isOptionOffer = byte === Command.Will;
@@ -53,12 +54,12 @@ export const parse = (input) => {
       }
 
     } else {
-      
+
       if (byte === Command.InterpretAsCommand) {
         isParsingTelnetSequence = true;
 
         if (sequence.length !== 0) {
-          output.push({type: 'raw', bytes: Buffer.from(sequence)});
+          output.push(utils.buildRawMessage(sequence));
           sequence = [];
         }
       }
@@ -69,40 +70,36 @@ export const parse = (input) => {
 
   if (sequence.length !== 0) {
     if (isParsingTelnetSequence) {
-      output.push({type: 'telnet', bytes: Buffer.from(sequence)});
+      output.push(buildTelnetMessage(sequence));
     } else {
-      output.push({type: 'raw', bytes: Buffer.from(sequence)});
+      output.push(utils.buildRawMessage(sequence));
     }
 
   }
 
   return output;
-};
+}
 
-export const convertToNames = (buffer) => {
-  if (buffer.length === 3 && isNegotiationCommand(buffer[1])) {
-    return [
-      getCommandName(buffer[0]),
-      getCommandName(buffer[1]),
-      getOptionName(buffer[2])
-    ];
-  } else {
-    return buffer.map(byte => getCommandName(byte));
+function buildTelnetMessage(sequence) {
+  return {
+    type: 'telnet',
+    bytes: Buffer.from(sequence),
+    parsed: sequence.map(getCommandByCode)
   }
-};
+}
 
-const isNegotiationCommand = (byte) => {
-  return byte >= 251 && byte <= 254;
-};
+export function getCommandByCode(code) {
+  const commandEntry = Object.entries(Command).find(utils.valueMatches(code));
+  if (commandEntry) {
+    const [ command ] = commandEntry;
+    return command;
+  }
 
-const getCommandName = (byte) => {
-  let entries = Object.entries(Command).filter(([name, code]) => byte === code);
-  let entry = entries[0] || UNKNOWN_BYTE;
-  return entry[0] || UNKNOWN_BYTE;
-};
+  const optionEntry = Object.entries(Option).find(utils.valueMatches(code));
+  if (optionEntry) {
+    const [ option ] = optionEntry;
+    return option;
+  }
 
-const getOptionName = (byte) => {
-  let entries = Object.entries(Option).filter(([name, code]) => byte === code);
-  let entry = entries[0] || UNKNOWN_BYTE;
-  return entry[0] || UNKNOWN_BYTE;
-};
+  return UNKNOWN_VALUE;
+}
