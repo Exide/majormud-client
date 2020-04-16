@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Socket } from 'net';
-import StreamParser from '../parser'
+import StreamParser from './parser'
 import * as xterm from 'xterm';
-import * as ascii from '../ascii';
+import * as ascii from './ascii';
 
-import '../../node_modules/xterm/css/xterm.css';
+import '../node_modules/xterm/css/xterm.css';
 
 export default class Terminal extends React.Component {
 
@@ -43,7 +43,7 @@ export default class Terminal extends React.Component {
       console.debug('socket opened to:', host, port);
     });
 
-    console.debug('initializing xterm terminal')
+    console.debug('initializing xterm terminal');
     this.terminal.onData(this.onTerminalData.bind(this));
     this.terminal.onKey(this.onTerminalKey.bind(this));
     this.terminal.open(this.element);
