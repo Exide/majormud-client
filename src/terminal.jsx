@@ -4,6 +4,7 @@ import { Socket } from 'net';
 import StreamParser from './parser'
 import * as xterm from 'xterm';
 import * as ascii from './ascii';
+import config from '../config.json';
 
 import '../node_modules/xterm/css/xterm.css';
 
@@ -14,8 +15,8 @@ export default class Terminal extends React.Component {
     this.socket = new Socket();
     this.streamParser = new StreamParser();
     this.terminal = new xterm.Terminal({
-      fontSize: 15,
-      fontFamily: 'Consolas, monospace',
+      fontSize: config.font.size,
+      fontFamily: config.font.family,
       theme: {
         black: '#000000'  // default is 'white'
       }

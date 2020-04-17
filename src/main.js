@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron');
+const config = require('../config.json');
 
 // needs to be global so its not garbage collected
 let mainWindow;
@@ -7,8 +8,8 @@ app.on('ready', async () => {
   console.debug('electron ready; initializing application');
 
   const mainWindowOptions = {
-    width: 996,
-    height: 730,
+    width: config.resolution.width,
+    height: config.resolution.height,
     webPreferences: {
       nodeIntegration: true
     }
