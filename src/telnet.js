@@ -1,5 +1,10 @@
 import * as utils from './utils';
 
+export default {
+  parse: parse,
+  getCommandByCode: getCommandByCode
+}
+
 const Command = {
   SubnegotiationEnd: 240,
   NoOperation: 241,
@@ -27,7 +32,7 @@ const Option = {
 
 const UNKNOWN_VALUE = '?';
 
-export function parse(input) {
+function parse(input) {
   if (input.type !== 'raw') return input;
 
   let isParsingTelnetSequence = false;
@@ -88,7 +93,7 @@ function buildTelnetMessage(sequence) {
   }
 }
 
-export function getCommandByCode(code) {
+function getCommandByCode(code) {
   const commandEntry = Object.entries(Command).find(utils.valueMatches(code));
   if (commandEntry) {
     const [ command ] = commandEntry;

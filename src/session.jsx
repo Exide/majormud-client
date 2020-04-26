@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Socket } from 'net';
-import StreamParser from './parser'
 import * as xterm from 'xterm';
-import * as ascii from './ascii';
+import ASCII from './ascii';
+import Telnet from './telnet';
+import ANSI from './ansi';
 import config from '../config.json';
 
 import '../node_modules/xterm/css/xterm.css';
@@ -12,8 +13,11 @@ export default class Session extends React.Component {
 
   constructor(props) {
     super(props);
+    super(props);
+    this.state = {
+      connected: false
+    };
     this.socket = new Socket();
-    this.streamParser = new StreamParser();
     this.terminal = new xterm.Terminal({
       fontSize: config.font.size,
       fontFamily: config.font.family,
@@ -34,6 +38,7 @@ export default class Session extends React.Component {
     this.socket.on('close', this.onSocketClose.bind(this));
 
     const { address, port } = this.props;
+    console.info(`connecting to ${address}:${port}`);
     this.socket.connect(port, address, this.onSocketConnect.bind(this));
   }
 
@@ -54,6 +59,7 @@ export default class Session extends React.Component {
 
   onSocketConnect() {
     console.debug('socket connected');
+    this.setState({ connected: true });
   }
 
   onSocketData(bytes) {
@@ -61,10 +67,13 @@ export default class Session extends React.Component {
 
     console.debug('bytes received:', bytes);
     this.terminal.write(bytes);
-    const parsedBytes = this.streamParser.parse(bytes);
+    const events = buildEventsFromBytes(bytes);
+    const stateChanges = getStateChangesFromEvents(events);
+    this.setState(stateChanges);
   }
 
   onSocketClose() {
+    this.setState({ connected: false });
     console.debug('socket closed');
   }
 
@@ -74,7 +83,7 @@ export default class Session extends React.Component {
 
   onTerminalKey(event) {
     console.debug('terminal key:', event);
-    const asciiCode = ascii.getCodeForEvent(event.domEvent);
+    const asciiCode = ASCII.getCodeForEvent(event.domEvent);
     const bytes = Buffer.from([ asciiCode ]);
     this.socket.write(bytes);
   }
@@ -82,4 +91,14 @@ export default class Session extends React.Component {
   render() {
     return <div/>
   }
+}
+
+function buildEventsFromBytes(bytes) {
+  return [ { type: 'raw', bytes } ]
+    .map(Telnet.parse)
+    .map(ANSI.parse);
+}
+
+function getStateChangesFromEvents(events) {
+
 }

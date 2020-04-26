@@ -1,6 +1,13 @@
 // source: http://www.asciitable.com/
 import * as utils from './utils';
 
+export default {
+  Encoding: Encoding,
+  getCode: getCode,
+  getCharacter: getCharacter,
+  getCodeForEvent: getCodeForEvent
+}
+
 export const Encoding = {
   'NULL': 0,
   'SOH': 1,
@@ -128,7 +135,7 @@ export const Encoding = {
 
 const UNKNOWN_BYTE = '?';
 
-export function getCode(character) {
+function getCode(character) {
   if (character in Encoding) {
     return Encoding[character];
   } else {
@@ -136,7 +143,7 @@ export function getCode(character) {
   }
 }
 
-export function getCharacter(code) {
+function getCharacter(code) {
   const entry = Object.entries(Encoding).find(utils.valueMatches(code));
   if (!entry) return UNKNOWN_BYTE;
 
@@ -148,7 +155,7 @@ export function getCharacter(code) {
  * @param {KeyboardEvent} event
  * @returns {Number} ASCII character code
  */
-export function getCodeForEvent(event) {
+function getCodeForEvent(event) {
   switch (event.code) {
     case 'Enter': return Encoding.CR;
     case 'Space': return Encoding.SPACE;

@@ -1,9 +1,16 @@
 import * as ascii from './ascii';
 import * as utils from './utils';
 
+export default {
+  Encoding: Encoding,
+  Command: Command,
+  parse: parse,
+  getCommandByCode: getCommandByCode
+}
+
 // https://en.wikipedia.org/wiki/Windows-1252
 
-export const Encoding = {
+const Encoding = {
   Reset: 0,
   Bold: 1,
   Blink: 5,
@@ -29,7 +36,7 @@ export const Encoding = {
   BackgroundDefault: 49
 };
 
-export const Command = {
+const Command = {
   CursorPosition: ascii.Encoding.H,
   EraseDisplay: ascii.Encoding.J,
   SelectGraphicRendition: ascii.Encoding.m
@@ -37,7 +44,7 @@ export const Command = {
 
 const UNKNOWN_VALUE = '?';
 
-export function parse(input) {
+function parse(input) {
   if (input.type !== 'raw') return input;
 
   let isParsingANSISequence = false;
@@ -95,7 +102,7 @@ function isSequenceTerminator(byte) {
   return Object.values(Command).includes(byte);
 }
 
-export function getCommandByCode(code) {
+function getCommandByCode(code) {
   const entry = Object.entries(Encoding).find(utils.valueMatches(code));
   if (!entry) return UNKNOWN_VALUE;
 
