@@ -16,6 +16,9 @@ app.on('ready', async () => {
   };
 
   mainWindow = new BrowserWindow(mainWindowOptions);
+  mainWindow.on('resize', handleResize);
+  mainWindow.on('closed', handleClosed);
+
   await mainWindow.loadFile('index.html');
 
   if (process.env.NODE_ENV === 'development') {
@@ -24,12 +27,19 @@ app.on('ready', async () => {
     });
   }
 
-  mainWindow.on('closed', () => {
-    console.debug('main window closing');
-    mainWindow = null;
-  });
-
 });
+
+function handleResize() {
+  console.debug('main window resizing');
+  const { width, height } = mainWindow.getBounds();
+  config.resolution.width = width;
+  config.resolution.height = height;
+}
+
+function handleClosed() {
+  console.debug('main window closing');
+  mainWindow = null;
+}
 
 app.on('window-all-closed', () => {
   console.debug('all windows closed; quitting application');

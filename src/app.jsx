@@ -1,11 +1,11 @@
 import React from 'react';
-import Terminal from './terminal.jsx';
+import Session from './session.jsx';
 
 const address = 'mud.nocturnalreign.org';
 const port = 55999;
 
 const App = () => (
-  <Terminal host={address} port={port} />
+  <Session address={address} port={port} />
 );
 
 export default App;

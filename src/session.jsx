@@ -8,7 +8,7 @@ import config from '../config.json';
 
 import '../node_modules/xterm/css/xterm.css';
 
-export default class Terminal extends React.Component {
+export default class Session extends React.Component {
 
   constructor(props) {
     super(props);
@@ -24,35 +24,48 @@ export default class Terminal extends React.Component {
   }
 
   componentDidMount() {
-    // eslint-disable-next-line react/no-find-dom-node
-    this.element = ReactDOM.findDOMNode(this);
+    this.initializeTerminal();
+    this.initializeSocket();
+  }
 
-    this.socket.on('data', (bytes) => {
-      if (bytes === undefined) return;
+  initializeSocket() {
+    console.debug('initializing the socket');
+    this.socket.on('data', this.onSocketData.bind(this));
+    this.socket.on('close', this.onSocketClose.bind(this));
 
-      console.debug('bytes received:', bytes);
-      const parsedBytes = this.streamParser.parse(bytes);
-      this.terminal.write(parsedBytes);
-    });
+    const { address, port } = this.props;
+    this.socket.connect(port, address, this.onSocketConnect.bind(this));
+  }
 
-    this.socket.on('close', () => {
-      console.debug('socket closed');
-    });
-
-    const { host, port } = this.props;
-    this.socket.connect(port, host, () => {
-      console.debug('socket opened to:', host, port);
-    });
-
+  initializeTerminal() {
     console.debug('initializing xterm terminal');
     this.terminal.onData(this.onTerminalData.bind(this));
     this.terminal.onKey(this.onTerminalKey.bind(this));
-    this.terminal.open(this.element);
+
+    // eslint-disable-next-line react/no-find-dom-node
+    const element = ReactDOM.findDOMNode(this);
+    this.terminal.open(element);
   }
 
   componentWillUnmount() {
     console.debug('destroying xterm terminal');
     this.terminal.destroy()
+  }
+
+  onSocketConnect() {
+    console.debug('socket connected');
+  }
+
+  onSocketData(bytes) {
+    if (bytes === undefined) return;
+
+    console.debug('bytes received:', bytes);
+    this.terminal.write(bytes);
+    const parsedBytes = this.streamParser.parse(bytes);
+  }
+
+  onSocketClose() {
+    console.debug('socket closed');
   }
 
   onTerminalData(event) {
@@ -67,6 +80,6 @@ export default class Terminal extends React.Component {
   }
 
   render() {
-    return <div ref={this.element}/>;
+    return <div/>
   }
 }
