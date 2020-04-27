@@ -35,12 +35,8 @@
     "xterm": "^4.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
-    "@babel/preset-react": "^7.7.4",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
-    "babel-loader": "^8.0.6",
     "css-loader": "^2.1.1",
     "eslint": "^6.7.0",
     "eslint-plugin-react": "^7.16.0",
