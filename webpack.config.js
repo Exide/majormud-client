@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 const mainConfig = {
-  entry: './src/main.js',
+  entry: './src/main.ts',
   target: 'electron-main',
   output: {
     filename: 'main.bundle.js',
@@ -34,7 +34,7 @@ const mainConfig = {
 };
 
 const rendererConfig = {
-  entry: './src/renderer.jsx',
+  entry: './src/renderer.tsx',
   target: 'electron-renderer',
   output: {
     filename: 'renderer.bundle.js',
