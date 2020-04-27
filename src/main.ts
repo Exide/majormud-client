@@ -1,6 +1,6 @@
-const { app, BrowserWindow } = require('electron');
-const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
-const config = require('../config.json');
+import { app, BrowserWindow } from 'electron';
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+import * as config from '../config.json';
 
 // needs to be global so its not garbage collected
 let mainWindow;

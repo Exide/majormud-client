@@ -1,19 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import { Component } from 'react';
 import { Socket } from 'net';
 import * as xterm from 'xterm';
 import ASCII from './ascii';
 import Telnet from './telnet';
 import ANSI from './ansi';
-import config from '../config.json';
+import * as config from '../config.json';
 
 import '../node_modules/xterm/css/xterm.css';
 
-export default class Session extends React.Component {
+export interface SessionProperties {
+  address: string
+  port: number
+}
 
-  constructor(props) {
-    super(props);
-    super(props);
+export class Session extends Component<SessionProperties> {
+
+  private element: HTMLElement;
+  private socket: Socket;
+  private terminal: xterm.Terminal;
+
+  constructor(properties: SessionProperties) {
+    super(properties);
     this.state = {
       connected: false
     };
@@ -46,15 +54,12 @@ export default class Session extends React.Component {
     console.debug('initializing xterm terminal');
     this.terminal.onData(this.onTerminalData.bind(this));
     this.terminal.onKey(this.onTerminalKey.bind(this));
-
-    // eslint-disable-next-line react/no-find-dom-node
-    const element = ReactDOM.findDOMNode(this);
-    this.terminal.open(element);
+    this.terminal.open(this.element);
   }
 
   componentWillUnmount() {
     console.debug('destroying xterm terminal');
-    this.terminal.destroy()
+    this.terminal.dispose();
   }
 
   onSocketConnect() {
@@ -89,16 +94,16 @@ export default class Session extends React.Component {
   }
 
   render() {
-    return <div/>
+    return <div ref={e => this.element = e}/>
   }
 }
 
-function buildEventsFromBytes(bytes) {
+function buildEventsFromBytes(bytes: Buffer) {
   return [ { type: 'raw', bytes } ]
     .map(Telnet.parse)
     .map(ANSI.parse);
 }
 
-function getStateChangesFromEvents(events) {
-
+function getStateChangesFromEvents(events): Object {
+  return {};
 }
