@@ -13,10 +13,15 @@ const mainConfig = {
     __filename: false
   },
   resolve: {
-    extensions: [ '.js', '.json' ]
+    extensions: [ '.ts', '.js', '.json' ]
   },
   module: {
     rules: [
+      {
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        include: /src/
+      },
       {
         test: /\.(png|svg|ico|icns|ttf)$/,
         loader: 'file-loader',
@@ -40,19 +45,14 @@ const rendererConfig = {
     __filename: false
   },
   resolve: {
-    extensions: [ '.js', '.json', '.jsx' ]
+    extensions: [ '.ts', '.js', '.tsx', '.jsx', '.json' ]
   },
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.([jt])s(x?)$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          query: {
-            presets: [ '@babel/env', '@babel/react' ]
-          }
-        }
+        use: [ 'ts-loader' ]
       },
       {
         test: /\.css$/,

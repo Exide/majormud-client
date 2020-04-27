@@ -1,11 +1,14 @@
-import React from 'react';
-import Session from './session.jsx';
+import * as React from 'react';
+import { Component } from 'react';
+import { Session } from './session';
 
 const address = 'mud.nocturnalreign.org';
 const port = 55999;
 
-const App = () => (
-  <Session address={address} port={port} />
-);
+export class App extends Component {
 
-export default App;
+  render() {
+    return <Session address={address} port={port}/>
+  }
+
+}
