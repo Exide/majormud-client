@@ -17,7 +17,7 @@
     "test:unit": "jest",
     "build:dev": "rimraf ./dist/dev && webpack --mode development --output-path ./dist/dev",
     "build:prod": "rimraf ./dist/prod && webpack --mode production --output-path ./dist/prod",
-    "start:dev": "npm run build:dev && electron --inspect ./dist/dev/main.bundle.js"
+    "start": "npm run build:dev && electron --inspect ./dist/dev/main.bundle.js"
   },
   "homepage": "https://github.com/Exide/majormud-client",
   "repository": {
@@ -31,13 +31,12 @@
     "electron": "^7.1.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "typescript": "^3.8.3",
     "xterm": "^4.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
-    "@babel/preset-react": "^7.7.4",
-    "babel-loader": "^8.0.6",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.6",
     "css-loader": "^2.1.1",
     "eslint": "^6.7.0",
     "eslint-plugin-react": "^7.16.0",
@@ -46,6 +45,7 @@
     "jest": "^24.9.0",
     "rimraf": "^2.7.1",
     "style-loader": "^0.23.1",
+    "ts-loader": "^7.0.1",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
   }

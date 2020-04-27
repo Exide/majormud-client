@@ -1,5 +1,5 @@
-const { app, BrowserWindow } = require('electron');
-const config = require('../config.json');
+import { app, BrowserWindow } from 'electron';
+import * as config from '../config.json';
 
 // needs to be global so its not garbage collected
 let mainWindow;
