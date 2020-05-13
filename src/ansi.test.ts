@@ -34,15 +34,15 @@ describe('parseRawMessage', () => {
     expect(value[1]).toMatchObject({ type: MessageType.ANSI });
     expect(value[2]).toMatchObject({ type: MessageType.ANSI });
     expect(value[3]).toMatchObject({ type: MessageType.ANSI });
-    expect(value[4]).toMatchObject({ type: MessageType.Raw, string: 'You are carrying 167 gold crowns, 4 silver nobles, 17 copper farthings, astral\r\nslippers (Feet), silver hood (Head), astral robes (Torso), fingerbone bracelet\r\n(Wrist), silver bracelet (Wrist), fine platinum chain (Waist), elven cloak\r\n(Back), prismatic trousers (Legs), silver bracers (Arms), moonstone ring\r\n(Finger), diamond overcloak (Worn), silver gloves (Hands), oaken staff (Weapon\r\nHand), quest medallion, rope and grapple, pristine scroll\r\n' });
+    expect(value[4]).toMatchObject({ type: MessageType.Raw, string: 'You are carrying 167 gold crowns, 4 silver nobles, 17 copper farthings, astral\nslippers (Feet), silver hood (Head), astral robes (Torso), fingerbone bracelet\n(Wrist), silver bracelet (Wrist), fine platinum chain (Waist), elven cloak\n(Back), prismatic trousers (Legs), silver bracers (Arms), moonstone ring\n(Finger), diamond overcloak (Worn), silver gloves (Hands), oaken staff (Weapon\nHand), quest medallion, rope and grapple, pristine scroll\n' });
     expect(value[5]).toMatchObject({ type: MessageType.ANSI });
     expect(value[6]).toMatchObject({ type: MessageType.ANSI });
     expect(value[7]).toMatchObject({ type: MessageType.ANSI });
-    expect(value[8]).toMatchObject({ type: MessageType.Raw, string: 'You have no keys.\r\n' });
+    expect(value[8]).toMatchObject({ type: MessageType.Raw, string: 'You have no keys.\n' });
     expect(value[9]).toMatchObject({ type: MessageType.ANSI });
     expect(value[10]).toMatchObject({ type: MessageType.Raw, string: 'Wealth: ' });
     expect(value[11]).toMatchObject({ type: MessageType.ANSI });
-    expect(value[12]).toMatchObject({ type: MessageType.Raw, string: '16757 copper farthings\r\n' });
+    expect(value[12]).toMatchObject({ type: MessageType.Raw, string: '16757 copper farthings\n' });
     expect(value[13]).toMatchObject({ type: MessageType.ANSI });
     expect(value[14]).toMatchObject({ type: MessageType.Raw, string: 'Encumbrance: ' });
     expect(value[15]).toMatchObject({ type: MessageType.ANSI });
