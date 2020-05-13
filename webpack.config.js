@@ -8,6 +8,7 @@ const mainConfig = {
     filename: 'main.bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
+  devtool: 'source-map',
   node: {
     __dirname: false,
     __filename: false

@@ -4,7 +4,9 @@
     "allowJs": true,
     "target": "es5",
     "jsx": "react",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "lib": [ "es2020" ],
+    "esModuleInterop": true
   },
   "include": [
     "./src/**/*"

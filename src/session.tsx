@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { Component } from 'react';
-import { Socket } from 'net';
+import {Component} from 'react';
+import {Socket} from 'net';
 import * as xterm from 'xterm';
-import ASCII from './ascii';
-import Telnet from './telnet';
-import ANSI from './ansi';
 import * as config from '../config.json';
-
+import { parseByteStream } from './message';
+import { convertKeyboardEventToEncoding } from './input';
 import '../node_modules/xterm/css/xterm.css';
 
 export interface SessionProperties {
@@ -72,8 +70,11 @@ export class Session extends Component<SessionProperties> {
 
     console.debug('bytes received:', bytes);
     this.terminal.write(bytes);
-    const events = buildEventsFromBytes(bytes);
-    const stateChanges = getStateChangesFromEvents(events);
+
+    const messages = parseByteStream(bytes);
+    console.debug('messages:', messages);
+
+    const stateChanges = {};
     this.setState(stateChanges);
   }
 
@@ -88,22 +89,12 @@ export class Session extends Component<SessionProperties> {
 
   onTerminalKey(event) {
     console.debug('terminal key:', event);
-    const asciiCode = ASCII.getCodeForEvent(event.domEvent);
-    const bytes = Buffer.from([ asciiCode ]);
-    this.socket.write(bytes);
+    const character = convertKeyboardEventToEncoding(event.domEvent);
+    const buffer = Buffer.from([ character.byte ]);
+    this.socket.write(buffer);
   }
 
   render() {
     return <div ref={e => this.element = e}/>
   }
-}
-
-function buildEventsFromBytes(bytes: Buffer) {
-  return [ { type: 'raw', bytes } ]
-    .map(Telnet.parse)
-    .map(ANSI.parse);
-}
-
-function getStateChangesFromEvents(events): Object {
-  return {};
 }
