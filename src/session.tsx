@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Component } from 'react';
 import { Socket } from 'net';
-import StreamParser from './parser'
 import * as xterm from 'xterm';
-import * as ascii from './ascii';
 import * as config from '../config.json';
+import { parseByteStream } from './message';
+import { convertKeyboardEventToEncoding } from './input';
 
 import '../node_modules/xterm/css/xterm.css';
 
@@ -17,13 +17,14 @@ export class Session extends Component<SessionProperties> {
 
   private element: HTMLElement;
   private socket: Socket;
-  private streamParser: StreamParser;
   private terminal: xterm.Terminal;
 
   constructor(properties: SessionProperties) {
     super(properties);
+    this.state = {
+      connected: false
+    };
     this.socket = new Socket();
-    this.streamParser = new StreamParser();
     this.terminal = new xterm.Terminal({
       fontSize: config.font.size,
       fontFamily: config.font.family,
@@ -44,6 +45,7 @@ export class Session extends Component<SessionProperties> {
     this.socket.on('close', this.onSocketClose.bind(this));
 
     const { address, port } = this.props;
+    console.info(`connecting to ${address}:${port}`);
     this.socket.connect(port, address, this.onSocketConnect.bind(this));
   }
 
@@ -61,6 +63,7 @@ export class Session extends Component<SessionProperties> {
 
   onSocketConnect() {
     console.debug('socket connected');
+    this.setState({ connected: true });
   }
 
   onSocketData(bytes) {
@@ -68,10 +71,16 @@ export class Session extends Component<SessionProperties> {
 
     console.debug('bytes received:', bytes);
     this.terminal.write(bytes);
-    const parsedBytes = this.streamParser.parse(bytes);
+
+    const messages = parseByteStream(bytes);
+    console.debug('messages:', messages);
+
+    const stateChanges = {};
+    this.setState(stateChanges);
   }
 
   onSocketClose() {
+    this.setState({ connected: false });
     console.debug('socket closed');
   }
 
@@ -81,9 +90,9 @@ export class Session extends Component<SessionProperties> {
 
   onTerminalKey(event) {
     console.debug('terminal key:', event);
-    const asciiCode = ascii.getCodeForEvent(event.domEvent);
-    const bytes = Buffer.from([ asciiCode ]);
-    this.socket.write(bytes);
+    const character = convertKeyboardEventToEncoding(event.domEvent);
+    const buffer = Buffer.from([ character.byte ]);
+    this.socket.write(buffer);
   }
 
   render() {

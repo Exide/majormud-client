@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron';
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import * as config from '../config.json';
 
 // needs to be global so its not garbage collected
@@ -44,4 +45,11 @@ function handleClosed() {
 app.on('window-all-closed', () => {
   console.debug('all windows closed; quitting application');
   app.quit();
+});
+
+app.whenReady().then(() => {
+  const enabledExtensions = [ REACT_DEVELOPER_TOOLS ];
+  installExtension(enabledExtensions)
+    .then(name => console.debug(`extension installed: ${name}`))
+    .catch(console.error);
 });

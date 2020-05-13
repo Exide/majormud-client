@@ -1,4 +1,7 @@
-import * as utils from './utils';
+import { Message, MessageType } from './message';
+import { buildRawMessage, valueMatches } from './utils';
+import { Moment } from 'moment';
+import UTF from './utf';
 
 const Command = {
   SubnegotiationEnd: 240,
@@ -25,10 +28,8 @@ const Option = {
   SuppressGoAhead: 3
 };
 
-const UNKNOWN_VALUE = '?';
-
-export function parse(input) {
-  if (input.type !== 'raw') return input;
+export function parseRawMessage(input: Message): Message[] {
+  if (input.type !== MessageType.Raw) return [ input ];
 
   let isParsingTelnetSequence = false;
   let isNegotiatingOption = false;
@@ -45,7 +46,7 @@ export function parse(input) {
       if (isNegotiatingOption) {
         isParsingTelnetSequence = false;
         isNegotiatingOption = false;
-        output.push(buildTelnetMessage(sequence));
+        output.push(buildTelnetMessage(sequence, input.timestamp));
         sequence = [];
       } else {
         let isOptionOffer = byte === Command.Will;
@@ -59,7 +60,7 @@ export function parse(input) {
         isParsingTelnetSequence = true;
 
         if (sequence.length !== 0) {
-          output.push(utils.buildRawMessage(sequence));
+          output.push(buildRawMessage(sequence, input.timestamp));
           sequence = [];
         }
       }
@@ -70,9 +71,9 @@ export function parse(input) {
 
   if (sequence.length !== 0) {
     if (isParsingTelnetSequence) {
-      output.push(buildTelnetMessage(sequence));
+      output.push(buildTelnetMessage(sequence, input.timestamp));
     } else {
-      output.push(utils.buildRawMessage(sequence));
+      output.push(buildRawMessage(sequence, input.timestamp));
     }
 
   }
@@ -80,26 +81,29 @@ export function parse(input) {
   return output;
 }
 
-function buildTelnetMessage(sequence) {
+function buildTelnetMessage(sequence: number[], timestamp: Moment): Message {
+  const buffer = Buffer.from(sequence);
   return {
-    type: 'telnet',
-    bytes: Buffer.from(sequence),
+    timestamp,
+    type: MessageType.Telnet,
+    bytes: buffer,
+    string: buffer.toString(),
     parsed: sequence.map(getCommandByCode)
   }
 }
 
-export function getCommandByCode(code) {
-  const commandEntry = Object.entries(Command).find(utils.valueMatches(code));
+function getCommandByCode(code): String {
+  const commandEntry = Object.entries(Command).find(valueMatches(code));
   if (commandEntry) {
     const [ command ] = commandEntry;
     return command;
   }
 
-  const optionEntry = Object.entries(Option).find(utils.valueMatches(code));
+  const optionEntry = Object.entries(Option).find(valueMatches(code));
   if (optionEntry) {
     const [ option ] = optionEntry;
     return option;
   }
 
-  return UNKNOWN_VALUE;
+  return UTF.WhiteSquare.bytes.toString();
 }
