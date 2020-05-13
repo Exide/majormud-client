@@ -1,10 +1,11 @@
 import * as React from 'react';
-import {Component} from 'react';
-import {Socket} from 'net';
+import { Component } from 'react';
+import { Socket } from 'net';
 import * as xterm from 'xterm';
 import * as config from '../config.json';
 import { parseByteStream } from './message';
 import { convertKeyboardEventToEncoding } from './input';
+
 import '../node_modules/xterm/css/xterm.css';
 
 export interface SessionProperties {

@@ -7,10 +7,6 @@
     "majormud",
     "megamud"
   ],
-  "engines": {
-    "node": "^14.1.0",
-    "npm": "^6.14.4"
-  },
   "scripts": {
     "test": "npm run test:static && npm run test:unit",
     "test:static": "eslint .",
@@ -26,6 +22,10 @@
   },
   "bugs": {
     "url": "https://github.com/Exide/majormud-client/issues"
+  },
+  "engines": {
+    "node": "^14.1.0",
+    "npm": "^6.14.4"
   },
   "dependencies": {
     "electron": "^7.1.2",
