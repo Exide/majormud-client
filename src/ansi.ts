@@ -90,7 +90,7 @@ export function parseRawMessage(input: Message): Message[] {
     if (terminatorsToFind.length < 1) {
       // not currently parsing an escape sequence
 
-      if (currentByte === ASCII.Escape.byte) {
+      if (currentByte === ASCII.Escape.cp437) {
         // we potentially have the start of a new escape sequence
 
         // capture the next byte

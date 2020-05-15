@@ -4,7 +4,8 @@ import { Socket } from 'net';
 import * as xterm from 'xterm';
 import * as config from '../config.json';
 import { parseByteStream } from './message';
-import { convertKeyboardEventToEncoding } from './input';
+import { converyKeyboardEventToASCII } from './input';
+import { convertCP437toUTF8 } from './ascii';
 
 import '../node_modules/xterm/css/xterm.css';
 
@@ -70,7 +71,8 @@ export class Session extends Component<SessionProperties> {
     if (bytes === undefined) return;
 
     console.debug('bytes received:', bytes);
-    this.terminal.write(bytes);
+    const unicodeBytes = bytes.map(convertCP437toUTF8);
+    this.terminal.write(unicodeBytes);
 
     const messages = parseByteStream(bytes);
     console.debug('messages:', messages);
@@ -90,8 +92,8 @@ export class Session extends Component<SessionProperties> {
 
   onTerminalKey(event) {
     console.debug('terminal key:', event);
-    const character = convertKeyboardEventToEncoding(event.domEvent);
-    const buffer = Buffer.from([ character.byte ]);
+    const character = converyKeyboardEventToASCII(event.domEvent);
+    const buffer = Buffer.from([ character.cp437 ]);
     this.socket.write(buffer);
   }
 

@@ -24,12 +24,10 @@
     },
     "rules": {
         "array-bracket-spacing": [ "error", "always" ],
-        "space-in-brackets": [ "error", "always" ],
+        "object-curly-spacing": [ "error", "always" ],
         "dot-location": [ "error", "property" ],
         "linebreak-style": [ "error", "unix" ],
         "no-unused-vars": "warn",
-        "object-curly-spacing": [ "error", "always" ],
-
         "react/prop-types": "off"
     }
 }

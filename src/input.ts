@@ -1,10 +1,10 @@
-import ASCII from './ascii';
+import ASCII, { Character } from './ascii';
 
 /**
  * @param {KeyboardEvent} event
  * @returns {Number} ASCII character code
  */
-export function convertKeyboardEventToEncoding(event) {
+export function converyKeyboardEventToASCII(event): Character {
   switch (event.code) {
     case 'Enter': return ASCII.CarriageReturn;
     case 'Space': return ASCII.Space;
