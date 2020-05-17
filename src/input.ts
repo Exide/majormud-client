@@ -1,4 +1,4 @@
-import { convertDOMKeyToCP437, CharactersByName } from './characterEncodings';
+import { convertDOMKeyToCP437 } from './characterEncodings';
 
 export function parseDOMKeyInput(key): Buffer {
   switch (key) {
