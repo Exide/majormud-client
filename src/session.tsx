@@ -4,8 +4,8 @@ import { Socket } from 'net';
 import * as xterm from 'xterm';
 import * as config from '../config.json';
 import { parseByteStream } from './message';
-import { converyKeyboardEventToASCII } from './input';
-import { convertCP437toUTF8 } from './ascii';
+import { convertCP437toUTF8 } from './characterEncodings';
+import { parseDOMKeyInput } from './input';
 
 import '../node_modules/xterm/css/xterm.css';
 
@@ -92,8 +92,8 @@ export class Session extends Component<SessionProperties> {
 
   onTerminalKey(event) {
     console.debug('terminal key:', event);
-    const character = converyKeyboardEventToASCII(event.domEvent);
-    const buffer = Buffer.from([ character.cp437 ]);
+    const key = event.domEvent.key;
+    const buffer = parseDOMKeyInput(key);
     this.socket.write(buffer);
   }
 

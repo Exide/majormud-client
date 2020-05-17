@@ -1,4 +1,4 @@
-import { convertCP437toUTF8 } from './ascii';
+import { convertCP437toUTF8 } from './characterEncodings';
 import { Message, MessageType } from './message';
 import { Moment } from 'moment';
 

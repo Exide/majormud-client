@@ -1,5 +1,5 @@
 import { Message, MessageType } from './message';
-import ASCII from './ascii';
+import { CharactersByName } from './characterEncodings';
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code
 
@@ -90,7 +90,7 @@ export function parseRawMessage(input: Message): Message[] {
     if (terminatorsToFind.length < 1) {
       // not currently parsing an escape sequence
 
-      if (currentByte === ASCII.Escape.cp437) {
+      if (currentByte === CharactersByName.Escape.cp437) {
         // we potentially have the start of a new escape sequence
 
         // capture the next byte
