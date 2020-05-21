@@ -20,7 +20,7 @@ describe('parseRawMessage', () => {
   });
 
   test('correctly parses inventory', async () => {
-    const fixturePath = path.resolve('tests/fixtures/ansi/inventory');
+    const fixturePath = path.resolve('tests/fixtures/inventory.cp437');
     const fixture = readFileSync(fixturePath);
     const message: Message = {
       type: MessageType.Raw,
