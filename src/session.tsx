@@ -6,6 +6,7 @@ import * as config from '../config.json';
 import { parseByteStream } from './message';
 import { convertCP437toUTF8 } from './characterEncodings';
 import { parseDOMKeyInput } from './input';
+import { clipboard } from 'electron';
 
 import '../node_modules/xterm/css/xterm.css';
 
@@ -71,6 +72,10 @@ export class Session extends Component<SessionProperties> {
     if (bytes === undefined) return;
 
     console.debug('bytes received:', bytes);
+    const previousBytes = clipboard.readText();
+    const byteArray = bytes.join(' ');
+    clipboard.writeText(`${previousBytes}\n${byteArray}`);
+
     const unicodeBytes = bytes.map(convertCP437toUTF8);
     this.terminal.write(unicodeBytes);
 
