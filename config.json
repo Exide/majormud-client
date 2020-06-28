@@ -1,10 +1,10 @@
 {
-    "resolution": {
-        "width": 996,
-        "height": 730
-    },
-    "font": {
-        "size": 15,
-        "family": "Consolas, monospace"
-    }
+  "resolution": {
+    "width": 996,
+    "height": 730
+  },
+  "font": {
+    "size": 15,
+    "family": "Consolas, monospace"
+  }
 }

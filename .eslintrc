@@ -1,33 +1,33 @@
 {
-    "env": {
-        "es6": true,
-        "node": true,
-        "browser": true,
-        "jest": true
-    },
-    "extends": [
-        "eslint:recommended",
-        "plugin:react/recommended"
-    ],
-    "settings": {
-        "react": {
-            "version": "detect"
-        }
-    },
-    "globals": {
-        "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly"
-    },
-    "parserOptions": {
-        "ecmaVersion": 2019,
-        "sourceType": "module"
-    },
-    "rules": {
-        "array-bracket-spacing": [ "error", "always" ],
-        "object-curly-spacing": [ "error", "always" ],
-        "dot-location": [ "error", "property" ],
-        "linebreak-style": [ "error", "unix" ],
-        "no-unused-vars": "warn",
-        "react/prop-types": "off"
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true,
+    "jest": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
     }
+  },
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2019,
+    "sourceType": "module"
+  },
+  "rules": {
+    "array-bracket-spacing": [ "error", "always" ],
+    "object-curly-spacing": [ "error", "always" ],
+    "dot-location": [ "error", "property" ],
+    "linebreak-style": [ "error", "unix" ],
+    "no-unused-vars": "warn",
+    "react/prop-types": "off"
+  }
 }
