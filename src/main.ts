@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, session, OnHeadersReceivedListenerDetails, HeadersReceivedResponse, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import * as config from '../config.json';
 
@@ -7,6 +7,10 @@ let mainWindow;
 
 app.on('ready', async () => {
   console.debug('electron ready; initializing application');
+
+  if (process.env.NODE_ENV !== 'development') {
+    session.defaultSession.webRequest.onHeadersReceived(setContentSecurityPolicy);
+  }
 
   const mainWindowOptions = {
     width: config.resolution.width,
@@ -53,3 +57,12 @@ app.whenReady().then(() => {
     .then(name => console.debug(`extension installed: ${name}`))
     .catch(console.error);
 });
+
+function setContentSecurityPolicy(details: OnHeadersReceivedListenerDetails, callback: (response: HeadersReceivedResponse) => void) {
+  callback({
+    responseHeaders: {
+      ...details.responseHeaders,
+      'Content-Security-Policy': `script-src 'self'`
+    }
+  })
+}
