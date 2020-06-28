@@ -28,6 +28,7 @@
     "dot-location": [ "error", "property" ],
     "linebreak-style": [ "error", "unix" ],
     "no-unused-vars": "warn",
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "indent": [ "error", 2 ]
   }
 }
