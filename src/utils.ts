@@ -1,4 +1,4 @@
-import { convertCP437toUTF8 } from './characterEncodings';
+import { convertCP437toUTF8String } from './characterEncodings';
 import { Message, MessageType } from './message';
 import { Moment } from 'moment';
 
@@ -12,9 +12,8 @@ export function buildRawMessage(bytes: number[], timestamp: Moment): Message {
     timestamp,
     type: MessageType.Raw,
     bytes: buffer,
-    string: buffer.toString(),
-    parsed: bytes
-      .map(convertCP437toUTF8)
+    string: bytes
+      .map(convertCP437toUTF8String)
       .join('')
   };
 }

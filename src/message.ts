@@ -1,5 +1,5 @@
 import * as Telnet from './telnet';
-import * as ANSI from './ansi';
+import ansiParser from './ansi/parser';
 import moment, { Moment } from 'moment';
 
 export enum MessageType {
@@ -25,5 +25,5 @@ export function parseByteStream(bytes: Buffer): Message[] {
   // each parser reduces the set of raw data so order of operation matters here.
   return [ initialMessage ]
     .flatMap(Telnet.parseRawMessage)
-    .flatMap(ANSI.parseRawMessage);
+    .flatMap(ansiParser);
 }

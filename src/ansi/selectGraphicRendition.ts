@@ -1,0 +1,32 @@
+export enum SelectGraphicRenditionParameters {
+  Reset = 0,
+  Bold = 1,
+  Faint = 2,
+  Italic = 3,
+  Underline = 4,
+  SlowBlink = 5,
+  RapidBlink = 6,
+  ReverseVideo = 7,
+  Conceal = 8,
+  CrossedOut = 9,
+  SetForegroundBlack = 30,
+  SetForegroundRed = 31,
+  SetForegroundGreen = 32,
+  SetForegroundYellow = 33,
+  SetForegroundBlue = 34,
+  SetForegroundMagenta = 35,
+  SetForegroundCyan = 36,
+  SetForegroundWhite = 37,
+  SetForegroundExtended = 38, // takes more arguments (e.g. `5;n`, `2;r;g;b`)
+  SetForegroundDefault = 39,  // system default
+  SetBackgroundBlack = 40,
+  SetBackgroundRed = 41,
+  SetBackgroundGreen = 42,
+  SetBackgroundYellow = 43,
+  SetBackgroundBlue = 44,
+  SetBackgroundMagenta = 45,
+  SetBackgroundCyan = 46,
+  SetBackgroundWhite = 47,
+  SetBackgroundExtended = 48, // takes more arguments (e.g. `5;n`, `2;r;g;b`)
+  SetDefaultBackground = 49   // system default
+}

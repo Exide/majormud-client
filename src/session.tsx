@@ -4,8 +4,8 @@ import { Socket } from 'net';
 import * as xterm from 'xterm';
 import * as config from '../config.json';
 import { parseByteStream } from './message';
-import { convertCP437toUTF8 } from './characterEncodings';
-import { parseDOMKeyInput } from './input';
+import { convertCP437toUTF16 } from './characterEncodings';
+import { parseDOMKeyboardEvent } from './input';
 import { clipboard } from 'electron';
 
 import '../node_modules/xterm/css/xterm.css';
@@ -76,8 +76,8 @@ export class Session extends Component<SessionProperties> {
     const byteArray = bytes.join(' ');
     clipboard.writeText(`${previousBytes}\n${byteArray}`);
 
-    const unicodeBytes = bytes.map(convertCP437toUTF8);
-    this.terminal.write(unicodeBytes);
+    const utf16Bytes = bytes.map(convertCP437toUTF16);
+    this.terminal.write(utf16Bytes);
 
     const messages = parseByteStream(bytes);
     console.debug('messages:', messages);
@@ -97,8 +97,7 @@ export class Session extends Component<SessionProperties> {
 
   onTerminalKey(event) {
     console.debug('terminal key:', event);
-    const key = event.domEvent.key;
-    const buffer = parseDOMKeyInput(key);
+    const buffer = parseDOMKeyboardEvent(event.domEvent);
     this.socket.write(buffer);
   }
 

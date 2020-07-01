@@ -1,73 +1,9 @@
-import { Message, MessageType } from './message';
-import { CharactersByName } from './characterEncodings';
+import { Message, MessageType } from '../message';
+import {CharactersByCP437, CharactersByName, convertCP437toUTF8String} from '../characterEncodings';
+import { EscapeSequencesByC1, EscapeSequencesByName } from './escapeSequences';
+import { ControlSequences, ControlSequencesByFinalByte } from './controlSequences';
 
-// https://en.wikipedia.org/wiki/ANSI_escape_code
-
-interface EscapeSequence {
-  name: string;
-  firstByte: number;
-  secondByte: number;
-  terminator: number;
-}
-
-interface ControlSequence extends EscapeSequence {
-  parameterBytes?: Buffer;
-  intermediateBytes?: Buffer;
-}
-
-export const EscapeSequences: { [key: string]: EscapeSequence } = {
-  CursorUp:                   { name: 'Cursor Up',                    firstByte: 27, secondByte: 91, terminator: 65 },
-  CursorDown:                 { name: 'Cursor Down',                  firstByte: 27, secondByte: 91, terminator: 66 },
-  CursorForward:              { name: 'Cursor Forward',               firstByte: 27, secondByte: 91, terminator: 67 },
-  CursorBackward:             { name: 'Cursor Backward',              firstByte: 27, secondByte: 91, terminator: 68 },
-  CursorNextLine:             { name: 'Cursor Next Line',             firstByte: 27, secondByte: 91, terminator: 69 },
-  CursorPreviousLine:         { name: 'Cursor Previous Line',         firstByte: 27, secondByte: 91, terminator: 70 },
-  CursorHorizontalAbsolute:   { name: 'Cursor Horizontal Absolute',   firstByte: 27, secondByte: 91, terminator: 71 },
-  CursorPosition:             { name: 'Cursor Position',              firstByte: 27, secondByte: 91, terminator: 72 },
-  EraseDisplay:               { name: 'Erase Display',                firstByte: 27, secondByte: 91, terminator: 74 },
-  EraseLine:                  { name: 'Erase Line',                   firstByte: 27, secondByte: 91, terminator: 75 },
-  ScrollUp:                   { name: 'Scroll Up',                    firstByte: 27, secondByte: 91, terminator: 83 },
-  ScrollDown:                 { name: 'Scroll Down',                  firstByte: 27, secondByte: 91, terminator: 84 },
-  HorizontalVerticalPosition: { name: 'Horizontal Vertical Position', firstByte: 27, secondByte: 91, terminator: 102 },
-  SelectGraphicRendition:     { name: 'Select Graphic Rendition',     firstByte: 27, secondByte: 91, terminator: 109 },
-  SaveCursorPosition:         { name: 'Save Cursor Position',         firstByte: 27, secondByte: 91, terminator: 115 },
-  RestoreCursorPosition:      { name: 'Restore Cursor Position',      firstByte: 27, secondByte: 91, terminator: 117 }
-};
-
-export enum SGRParameters {
-  Reset = 0,
-  Bold = 1,
-  Faint = 2,
-  Italic = 3,
-  Underline = 4,
-  SlowBlink = 5,
-  RapidBlink = 6,
-  ReverseVideo = 7,
-  Conceal = 8,
-  CrossedOut = 9,
-  SetForegroundBlack = 30,
-  SetForegroundRed = 31,
-  SetForegroundGreen = 32,
-  SetForegroundYellow = 33,
-  SetForegroundBlue = 34,
-  SetForegroundMagenta = 35,
-  SetForegroundCyan = 36,
-  SetForegroundWhite = 37,
-  SetForegroundExtended = 38, // takes more arguments (e.g. `5;n`, `2;r;g;b`)
-  SetForegroundDefault = 39,  // system default
-  SetBackgroundBlack = 40,
-  SetBackgroundRed = 41,
-  SetBackgroundGreen = 42,
-  SetBackgroundYellow = 43,
-  SetBackgroundBlue = 44,
-  SetBackgroundMagenta = 45,
-  SetBackgroundCyan = 46,
-  SetBackgroundWhite = 47,
-  SetBackgroundExtended = 48, // takes more arguments (e.g. `5;n`, `2;r;g;b`)
-  SetDefaultBackground = 49   // system default
-}
-
-export function parseRawMessage(input: Message): Message[] {
+export default function parse(input: Message): Message[] {
   if (input.type !== MessageType.Raw) return [input];
 
   let terminatorsToFind: number[] = [];
@@ -97,8 +33,8 @@ export function parseRawMessage(input: Message): Message[] {
         const nextByte = input.bytes[0];
 
         // can we infer an escape sequence from these 2 bytes?
-        const knownSecondBytes = new Set(Object.values(EscapeSequences).map(sequence => sequence.secondByte));
-        if (knownSecondBytes.has(nextByte)) {
+        const escapeSequence = EscapeSequencesByC1[nextByte];
+        if (escapeSequence !== undefined) {
           // console.debug(`first two bytes of an escape sequence found: ${currentByte} ${nextByte}`);
 
           // package and output any bytes currently in the buffer
@@ -109,7 +45,9 @@ export function parseRawMessage(input: Message): Message[] {
               type: MessageType.Raw,
               timestamp: input.timestamp,
               bytes: buffer,
-              string: buffer.toString()
+              string: bufferedBytes
+                .map(convertCP437toUTF8String)
+                .join('')
             });
           }
 
@@ -119,10 +57,20 @@ export function parseRawMessage(input: Message): Message[] {
           // move the cursor on the stream past the second byte
           input.bytes = input.bytes.slice(1);
 
-          // save a list of terminators to look for
-          terminatorsToFind = Object.values(EscapeSequences)
-            .filter(sequence => sequence.secondByte == nextByte)
-            .map(sequence => sequence.terminator);
+          if (escapeSequence !== EscapeSequencesByName.ControlSequence) {
+            // not a control sequence so just return the message
+            const buffer = Buffer.from(bufferedBytes);
+            output.push({
+              type: MessageType.ANSI,
+              timestamp: input.timestamp,
+              bytes: buffer,
+              string: buffer.toString(),
+              parsed: [ escapeSequence.name ]
+            });
+          } else {
+            // this is a control sequence so let's capture until we hit the final byte
+            terminatorsToFind = ControlSequences.map(s => s.finalByte);
+          }
 
           // go to the next byte in the stream
           continue;
@@ -140,8 +88,8 @@ export function parseRawMessage(input: Message): Message[] {
         // console.debug(`escape sequence terminator found: ${currentByte}`);
 
         // infer the escape sequence from the terminator
-        const escapeSequence = Object.values(EscapeSequences).find(sequence => sequence.terminator === currentByte);
-        if (!escapeSequence) throw new Error(`i think i have a known terminator (${currentByte}) but i can't find a corresponding escape sequence`);
+        const controlSequence = ControlSequencesByFinalByte[currentByte];
+        if (controlSequence === undefined) throw new Error(`i think i have a known terminator (${currentByte}) but i can't find a corresponding escape sequence`);
 
         // add the terminator to the buffer
         bufferedBytes.push(currentByte);
@@ -155,7 +103,7 @@ export function parseRawMessage(input: Message): Message[] {
           timestamp: input.timestamp,
           bytes: buffer,
           string: buffer.toString(),
-          parsed: [ escapeSequence, ...parameters ]
+          parsed: [ controlSequence.name, ...parameters ]
         });
 
         // stop looking for a terminator
@@ -185,7 +133,9 @@ export function parseRawMessage(input: Message): Message[] {
       type: MessageType.Raw,
       timestamp: input.timestamp,
       bytes: buffer,
-      string: buffer.toString()
+      string: bufferedBytes
+        .map(convertCP437toUTF8String)
+        .join('')
     });
   }
 

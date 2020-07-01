@@ -1,17 +1,24 @@
 import { convertDOMKeyToCP437 } from './characterEncodings';
+import { ControlSequencesByName } from './ansi/controlSequences';
 
-export function parseDOMKeyInput(key): Buffer {
-  switch (key) {
+// todo: find this interface in the official TypeScript/Node.js/Electron/etc libs
+export interface DOMKeyboardEvent {
+  key: string
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+export function parseDOMKeyboardEvent(event: DOMKeyboardEvent): Buffer {
+  switch (event.key) {
     case 'ArrowUp':
-      return Buffer.from([ 0x1b, 0x5b, 0x41 ]); // ^[A
+      return ControlSequencesByName.CursorUp.builder().build();
     case 'ArrowDown':
-      return Buffer.from([ 0x1b, 0x5b, 0x42 ]); // ^[B
+      return ControlSequencesByName.CursorDown.builder().build();
     case 'ArrowRight':
-      return Buffer.from([ 0x1b, 0x5b, 0x43 ]); // ^[C
+      return ControlSequencesByName.CursorForward.builder().build();
     case 'ArrowLeft':
-      return Buffer.from([ 0x1b, 0x5b, 0x44 ]); // ^[D
+      return ControlSequencesByName.CursorBackward.builder().build();
     default:
-      const cp437 = convertDOMKeyToCP437(key);
+      const cp437 = convertDOMKeyToCP437(event.key);
       return Buffer.from([ cp437 ]);
   }
 }
