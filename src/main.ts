@@ -1,14 +1,21 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import * as config from '../config.json';
 
 // needs to be global so its not garbage collected
-let mainWindow;
+let window;
 
-app.on('ready', async () => {
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  console.debug('all windows closed; quitting application');
+  app.quit();
+});
+
+function createWindow() {
   console.debug('electron ready; initializing application');
 
-  const mainWindowOptions = {
+  const windowOptions: BrowserWindowConstructorOptions = {
     width: config.resolution.width,
     height: config.resolution.height,
     webPreferences: {
@@ -16,40 +23,33 @@ app.on('ready', async () => {
     }
   };
 
-  mainWindow = new BrowserWindow(mainWindowOptions);
-  mainWindow.on('resize', handleResize);
-  mainWindow.on('closed', handleClosed);
+  window = new BrowserWindow(windowOptions);
+  window.on('resize', handleResize);
+  window.on('closed', handleClosed);
 
-  await mainWindow.loadFile('index.html');
+  window.loadFile('index.html');
 
   if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools({
+    window.webContents.openDevTools({
       mode: 'detach'
     });
   }
 
-});
+  const enabledExtensions = [ REACT_DEVELOPER_TOOLS ];
+  installExtension(enabledExtensions)
+    .then(name => console.debug(`extension installed: ${name}`))
+    .catch(console.error);
+
+}
 
 function handleResize() {
   console.debug('main window resizing');
-  const { width, height } = mainWindow.getBounds();
+  const { width, height } = window.getBounds();
   config.resolution.width = width;
   config.resolution.height = height;
 }
 
 function handleClosed() {
   console.debug('main window closing');
-  mainWindow = null;
+  window = null;
 }
-
-app.on('window-all-closed', () => {
-  console.debug('all windows closed; quitting application');
-  app.quit();
-});
-
-app.whenReady().then(() => {
-  const enabledExtensions = [ REACT_DEVELOPER_TOOLS ];
-  installExtension(enabledExtensions)
-    .then(name => console.debug(`extension installed: ${name}`))
-    .catch(console.error);
-});
