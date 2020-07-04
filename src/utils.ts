@@ -2,7 +2,7 @@ import { convertCP437toUTF8 } from './characterEncodings';
 import { Message, MessageType } from './message';
 import { Moment } from 'moment';
 
-export function valueMatches(match) {
+export function valueMatches(match: any): (entry: [string, any]) => boolean {
   return ([ /*skip*/, value ]) => value === match;
 }
 
