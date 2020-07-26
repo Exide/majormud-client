@@ -1,73 +1,93 @@
-import * as React from 'react';
-import { Component } from 'react';
+import React, { Component, ReactElement } from 'react';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { Socket } from 'net';
-import * as xterm from 'xterm';
-import * as config from '../config.json';
-import { parseByteStream } from './message';
-import { convertCP437toUTF8 } from './characterEncodings';
-import { parseDOMKeyInput } from './input';
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
+import * as config from '../../config.json';
+import { parseByteStream } from '../message';
+import { convertCP437toUTF8 } from '../characterEncodings';
+import { parseDOMKeyInput } from '../input';
 
-import '../node_modules/xterm/css/xterm.css';
+import '../../node_modules/xterm/css/xterm.css';
+import './Session.css';
 
-export interface SessionProperties {
-  address: string
+export interface SessionProps extends RouteComponentProps {
+  hostname: string
   port: number
 }
 
-export class Session extends Component<SessionProperties> {
+export interface SessionState {
+  connected: boolean
+}
+
+class Session extends Component<SessionProps, SessionState> {
 
   private element: HTMLElement;
   private socket: Socket;
-  private terminal: xterm.Terminal;
+  private terminal: Terminal;
+  private fitAddon: FitAddon;
 
-  constructor(properties: SessionProperties) {
+  constructor(properties: SessionProps) {
     super(properties);
+
     this.state = {
       connected: false
     };
+
     this.socket = new Socket();
-    this.terminal = new xterm.Terminal({
+    this.terminal = new Terminal({
       fontSize: config.font.size,
       fontFamily: config.font.family,
       theme: {
         black: '#000000'  // default is 'white'
       }
     });
+
+    this.fitAddon = new FitAddon();
+    this.terminal.loadAddon(this.fitAddon);
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
+    window.addEventListener('resize', this.onWindowResize.bind(this));
+
     this.initializeTerminal();
     this.initializeSocket();
   }
 
-  initializeSocket() {
+  onWindowResize(): void {
+    console.debug(event);
+    this.fitAddon.fit();
+  }
+
+  initializeSocket(): void {
     console.debug('initializing the socket');
     this.socket.on('data', this.onSocketData.bind(this));
     this.socket.on('close', this.onSocketClose.bind(this));
 
-    const { address, port } = this.props;
-    console.info(`connecting to ${address}:${port}`);
-    this.socket.connect(port, address, this.onSocketConnect.bind(this));
+    const { hostname, port } = this.props.history.location.state as SessionProps;
+    console.info(`connecting to ${hostname}:${port}`);
+    this.socket.connect(port, hostname, this.onSocketConnect.bind(this));
   }
 
-  initializeTerminal() {
+  initializeTerminal(): void {
     console.debug('initializing xterm terminal');
     this.terminal.onData(this.onTerminalData.bind(this));
     this.terminal.onKey(this.onTerminalKey.bind(this));
     this.terminal.open(this.element);
+    this.fitAddon.fit();
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     console.debug('destroying xterm terminal');
     this.terminal.dispose();
   }
 
-  onSocketConnect() {
+  onSocketConnect(): void {
     console.debug('socket connected');
     this.setState({ connected: true });
   }
 
-  onSocketData(bytes) {
+  onSocketData(bytes: Buffer): void {
     if (bytes === undefined) return;
 
     console.debug('bytes received:', bytes);
@@ -81,23 +101,25 @@ export class Session extends Component<SessionProperties> {
     this.setState(stateChanges);
   }
 
-  onSocketClose() {
+  onSocketClose(): void {
     this.setState({ connected: false });
     console.debug('socket closed');
   }
 
-  onTerminalData(event) {
+  onTerminalData(event): void {
     console.debug('terminal data:', event);
   }
 
-  onTerminalKey(event) {
+  onTerminalKey(event): void {
     console.debug('terminal key:', event);
     const key = event.domEvent.key;
     const buffer = parseDOMKeyInput(key);
     this.socket.write(buffer);
   }
 
-  render() {
+  render(): ReactElement {
     return <div ref={e => this.element = e}/>
   }
 }
+
+export default withRouter(Session);

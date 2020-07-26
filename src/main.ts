@@ -18,6 +18,7 @@ function createWindow() {
   const windowOptions: BrowserWindowConstructorOptions = {
     width: config.resolution.width,
     height: config.resolution.height,
+    frame: false,
     webPreferences: {
       nodeIntegration: true
     }

@@ -1,8 +1,13 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { App } from './app';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './components/App';
 
-import '../resources/reset.css';
-import '../resources/style.css';
+import '../resources/base.css';
+import '../resources/theme.css';
 
-ReactDOM.render(<App/>, document.getElementById('app'));
+import Window from './components/Window';
+
+const rootComponent = (<Window><App/></Window>);
+const rootElement = document.getElementById('root');
+
+ReactDOM.render(rootComponent, rootElement);

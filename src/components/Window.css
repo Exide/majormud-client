@@ -1,0 +1,76 @@
+#window {
+  height: 100%;
+}
+
+#window-title-bar {
+  -webkit-app-region: drag;
+  display: flex;
+  height: 32px;
+}
+
+#window-title {
+  display: flex;
+  flex: 1 0 auto;
+  order: 1;
+  justify-content: start;
+  align-content: center;
+}
+
+#window-title-bar .window-control {
+  -webkit-app-region: no-drag;
+  user-select: none;
+  display: flex;
+  flex: 0 1 auto;
+  justify-content: center;
+  align-items: center;
+  width: 46px;
+  height: 32px;
+  font-family: 'Segoe MDL2 Assets', sans-serif;
+  font-size: 10px;
+}
+
+#window-title-bar .window-control:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+#window-title-bar .window-control:active {
+  background: rgba(255,255,255,0.2);
+}
+
+#minimize-button {
+  order: 2;
+}
+
+#maximize-button,
+#restore-button {
+  order: 3;
+}
+
+#restore-button {
+  display: none !important;
+}
+
+#window.maximized #maximize-button {
+  display: none !important;
+}
+
+#window.maximized #restore-button {
+  display: flex !important;
+}
+
+#close-button {
+  order: 4;
+}
+
+#close-button:hover {
+  background: #E81123 !important;
+}
+
+#close-button:active {
+  background: #F1707A !important;
+}
+
+#window-content {
+  display: block;
+  border: 1px white dotted;
+}
