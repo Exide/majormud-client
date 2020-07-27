@@ -1,4 +1,5 @@
-import React, { Component, ReactElement } from 'react';
+import { remote } from 'electron';
+import React, { Component, ReactElement, SyntheticEvent } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { Socket } from 'net';
 import { Terminal } from 'xterm';
@@ -45,17 +46,17 @@ class Session extends Component<SessionProps, SessionState> {
 
     this.fitAddon = new FitAddon();
     this.terminal.loadAddon(this.fitAddon);
+
+    remote.getCurrentWindow().on('resize', this.onWindowResize.bind(this));
   }
 
   componentDidMount(): void {
-    window.addEventListener('resize', this.onWindowResize.bind(this));
-
     this.initializeTerminal();
     this.initializeSocket();
   }
 
   onWindowResize(): void {
-    console.debug(event);
+    console.debug('window resizing');
     this.fitAddon.fit();
   }
 
@@ -118,7 +119,7 @@ class Session extends Component<SessionProps, SessionState> {
   }
 
   render(): ReactElement {
-    return <div ref={e => this.element = e}/>
+    return <div id='session' ref={e => this.element = e}/>
   }
 }
 

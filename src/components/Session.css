@@ -1,3 +1,7 @@
+#session {
+  height: 100%;
+}
+
 #terminal {
   font-family: 'Consolas', monospace;
   font-size: 1em;

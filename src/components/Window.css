@@ -72,5 +72,5 @@
 
 #window-content {
   display: block;
-  border: 1px white dotted;
+  height: calc(100% - 32px);
 }
