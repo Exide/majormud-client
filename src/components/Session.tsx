@@ -1,5 +1,5 @@
 import { remote } from 'electron';
-import React, { Component, ReactElement, SyntheticEvent } from 'react';
+import React, { Component, ReactElement } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { Socket } from 'net';
 import { Terminal } from 'xterm';
@@ -13,7 +13,7 @@ import '../../node_modules/xterm/css/xterm.css';
 import './Session.css';
 
 export interface SessionProps extends RouteComponentProps {
-  hostname: string
+  host: string
   port: number
 }
 
@@ -65,9 +65,9 @@ class Session extends Component<SessionProps, SessionState> {
     this.socket.on('data', this.onSocketData.bind(this));
     this.socket.on('close', this.onSocketClose.bind(this));
 
-    const { hostname, port } = this.props.history.location.state as SessionProps;
-    console.info(`connecting to ${hostname}:${port}`);
-    this.socket.connect(port, hostname, this.onSocketConnect.bind(this));
+    const { host, port } = this.props.history.location.state as SessionProps;
+    console.info(`connecting to ${host}:${port}`);
+    this.socket.connect(port, host, this.onSocketConnect.bind(this));
   }
 
   initializeTerminal(): void {

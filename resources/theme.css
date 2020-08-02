@@ -1,9 +1,34 @@
 .default-text { color: #d3d3d3; }
-.foreground-light { color: #525252; }
-.background-light { color: #525252; }
-.foreground-medium { color: #414141; }
-.background-medium { color: #414141; }
-.foreground-dark { color: #313131; }
-.background-dark { color: #313131; }
-.foreground-highlight { color: #ca3e47; }
-.background-highlight { color: #ca3e47; }
+.light { color: #525252; }
+.medium { color: #414141; }
+.dark { color: #313131; }
+.highlight { color: #ca3e47; }
+
+body {
+  background-color: #313131;
+  color: #d3d3d3;
+  font-family: 'Tahoma', sans-serif;
+  font-size: 14pt;
+  font-weight: normal;
+}
+
+input, button {
+  border: 0;
+  border-radius: 4px;
+  padding: 10px 15px;
+  background-color: #414141;
+  color: #d3d3d3;
+}
+
+input:focus,
+button:focus {
+  outline: none;
+}
+
+form .input-error {
+  color: #ca3e47;
+}
+
+button:active {
+  background-color: #525252
+}

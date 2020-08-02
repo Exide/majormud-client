@@ -1,11 +1,10 @@
 #server-connect-form {
-  height: min-content;
-  width: max-content;
-  border: 1px green dotted;
-  justify-self: center;
-  align-self: center
+  position: relative;
+  top: 50%;
+  transform: translateY(-100%);
+  text-align: center;
 }
 
-#server-connect-form input[id='port'] {
-  text-align: right;
+#server-connect-form input {
+  width: 50%;
 }

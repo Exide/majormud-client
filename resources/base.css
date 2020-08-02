@@ -31,9 +31,6 @@ html {
 body {
   line-height: 1;
   height: 100%;
-  background-color: #313131;
-  color: #d3d3d3;
-  font-family: 'Consolas', monospace;
 }
 
 ol, ul {
@@ -56,31 +53,17 @@ table {
   border-spacing: 0;
 }
 
+input {
+  margin: 10px;
+}
+
 input, button {
   box-sizing: border-box;
-  font-size: 1em;
-  padding: 6px 8px;
-  border-width: 1px;
-  border-style: solid;
-  border-radius: 7px;
-  margin: 2px;
 }
 
-input {
-  background-color: #191919;
-  color: #d3d3d3;
-  border-color: #191919;
-}
-
-input:focus {
-  outline: none;
-  background-color: #222222;
-}
-
-button {
-  background-color: #414141;
-  color: #d3d3d3;
-  border-color: #414141;
+form .input-error {
+  display: none;
+  color: red;
 }
 
 #root {
