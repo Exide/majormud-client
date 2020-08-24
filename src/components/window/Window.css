@@ -12,11 +12,24 @@
   display: flex;
   flex: 1 0 auto;
   order: 1;
-  justify-content: start;
   align-content: center;
 }
 
-#window-title-bar .window-control {
+#window.windows #window-title,
+#window.linux #window-title {
+  justify-content: start;
+}
+
+#window.macos #window-title {
+  justify-content: center;
+}
+
+#window-controls {
+  display: flex;
+  order: 2;
+}
+
+#window-controls button {
   -webkit-app-region: no-drag;
   user-select: none;
   display: flex;
@@ -27,23 +40,25 @@
   height: 32px;
   font-family: 'Segoe MDL2 Assets', sans-serif;
   font-size: 10px;
+  border: 0;
+  border-radius: 0;
 }
 
-#window-title-bar .window-control:hover {
+#window-controls button:hover {
   background: rgba(255,255,255,0.1);
 }
 
-#window-title-bar .window-control:active {
+#window-controls button:active {
   background: rgba(255,255,255,0.2);
 }
 
 #minimize-button {
-  order: 2;
+  order: 1;
 }
 
 #maximize-button,
 #restore-button {
-  order: 3;
+  order: 2;
 }
 
 #restore-button {
@@ -59,7 +74,7 @@
 }
 
 #close-button {
-  order: 4;
+  order: 3;
 }
 
 #close-button:hover {
