@@ -38,7 +38,7 @@ export default class Window extends Component {
   }
 
   isMaximized(): boolean {
-    return this.electronWindow.isMaximized();
+    return remote.getCurrentWindow().isMaximized();
   }
 
   toggleMaximize(): void {
