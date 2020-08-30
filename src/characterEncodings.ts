@@ -266,32 +266,35 @@ export const Characters: Character[] = [
   { name: 'NoBreakSpace', cp437: 0xff, utf8: 0x00a0 }
 ];
 
+type CharacterLookupByString = { [key: string]: Character };
+type CharacterLookupByNumber = { [key: number]: Character };
+
 export const CharactersByName: { [key: string]: Character } = Characters
-  .reduce((output: object, character: Character): object => {
+  .reduce((output: CharacterLookupByString, character: Character): CharacterLookupByString => {
     output[character.name] = character;
     return output;
   }, {});
 
 export const CharactersByCP437: { [key: number]: Character } = Characters
-  .reduce((output: object, character: Character): object => {
+  .reduce((output: CharacterLookupByNumber, character: Character): CharacterLookupByNumber => {
     output[character.cp437] = character;
     return output;
   }, {});
 
 export const CharactersByUTF8: { [key: number]: Character } = Characters
-  .reduce((output: object, character: Character): object => {
+  .reduce((output: CharacterLookupByNumber, character: Character): CharacterLookupByNumber => {
     output[character.utf8] = character;
     return output;
   }, {});
 
 export const CharactersByDOMKey: { [key: string]: Character } = Characters
-  .reduce((output: object, character: Character): object => {
+  .reduce((output: CharacterLookupByString, character: Character): CharacterLookupByString => {
     if (character.domKey === undefined) return output;
     output[character.domKey] = character;
     return output;
   }, {});
 
-export function convertCP437toUTF8(byte): number {
+export function convertCP437toUTF8(byte: number): number {
   const character: Character = CharactersByCP437[byte];
   if (character === undefined) {
     console.warn(`unknown CP437 key code: ${byte}`);
@@ -301,7 +304,7 @@ export function convertCP437toUTF8(byte): number {
   }
 }
 
-export function convertDOMKeyToCP437(key): number {
+export function convertDOMKeyToCP437(key: string): number {
   const character: Character = CharactersByDOMKey[key];
   if (character === undefined) {
     console.warn(`unknown DOM key: ${key}`);
