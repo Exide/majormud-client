@@ -1,6 +1,7 @@
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import * as config from '../config.json';
+import os from 'os';
 
 // needs to be global so its not garbage collected
 let window;
@@ -18,11 +19,24 @@ function createWindow() {
   const windowOptions: BrowserWindowConstructorOptions = {
     width: config.resolution.width,
     height: config.resolution.height,
-    frame: false,
     webPreferences: {
       nodeIntegration: true
     }
   };
+
+  switch (os.platform()) {
+    case 'win32':
+      windowOptions.frame = false;
+      break;
+
+    case 'darwin':
+      windowOptions.titleBarStyle = 'hidden';
+      break;
+
+    default /*nix*/:
+      // todo: determine what makes sense in Linux
+      break;
+  }
 
   window = new BrowserWindow(windowOptions);
   window.on('resize', handleResize);

@@ -1,6 +1,6 @@
 {
   "name": "majormud-client",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A tool for automating the play of MajorMUD.",
   "author": "Ryan Zander <exide@hotmail.com>",
   "keywords": [
@@ -24,8 +24,8 @@
     "url": "https://github.com/Exide/majormud-client/issues"
   },
   "engines": {
-    "node": "^14.1.0",
-    "npm": "^6.14.4"
+    "node": "~14",
+    "npm": "~6.14"
   },
   "dependencies": {
     "electron": "^9.0.5",
