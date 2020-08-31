@@ -4,6 +4,7 @@
 
 #window-title-bar {
   -webkit-app-region: drag;
+  user-select: none;
   display: flex;
   height: 32px;
 }
@@ -31,7 +32,6 @@
 
 #window-controls button {
   -webkit-app-region: no-drag;
-  user-select: none;
   display: flex;
   flex: 0 1 auto;
   justify-content: center;

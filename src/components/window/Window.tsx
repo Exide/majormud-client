@@ -1,11 +1,9 @@
-import { remote, BrowserWindow } from 'electron';
+import { remote } from 'electron';
 import { Component } from 'react';
 
 import './Window.css';
 
 export default class Window extends Component {
-
-  protected electronWindow: BrowserWindow;
 
   constructor() {
     super(undefined);
@@ -16,25 +14,35 @@ export default class Window extends Component {
     this.close = this.close.bind(this);
     this.toggleMaximize = this.toggleMaximize.bind(this);
 
-    this.electronWindow = remote.getCurrentWindow();
-    this.electronWindow.on('maximize', this.toggleMaximize);
-    this.electronWindow.on('unmaximize', this.toggleMaximize);
+    const electronWindow = remote.getCurrentWindow();
+    electronWindow.on('maximize', this.maximize);
+    electronWindow.on('unmaximize', this.restore);
   }
 
   minimize(): void {
-    this.electronWindow.minimize();
+    if (!remote.getCurrentWindow().isMinimized()) {
+      console.debug('minimizing window');
+      remote.getCurrentWindow().minimize();
+    }
   }
 
   maximize(): void {
-    this.electronWindow.maximize();
+    if (!remote.getCurrentWindow().isMaximized()) {
+      console.debug('maximizing window');
+      remote.getCurrentWindow().maximize();
+    }
   }
 
   restore(): void {
-    this.electronWindow.unmaximize();
+    if (remote.getCurrentWindow().isMaximized()) {
+      console.debug('restoring window');
+      remote.getCurrentWindow().unmaximize();
+    }
   }
 
   close(): void {
-    this.electronWindow.close();
+    console.debug('closing window');
+    remote.getCurrentWindow().close();
   }
 
   isMaximized(): boolean {
@@ -42,11 +50,14 @@ export default class Window extends Component {
   }
 
   toggleMaximize(): void {
+    console.debug('toggle maximize');
     const domWindow = document.getElementById('window');
-    if (this.electronWindow.isMaximized()) {
-      domWindow.classList.add('maximized');
-    } else {
+    if (this.isMaximized()) {
+      this.restore();
       domWindow.classList.remove('maximized');
+    } else {
+      this.maximize();
+      domWindow.classList.add('maximized');
     }
   }
 
